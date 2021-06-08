@@ -1,0 +1,22 @@
+/nfs.h/1.1.1.1/Sat May  6 20:55:21 2000//
+/nfs_bio.c/1.1.1.1/Sat May  6 20:55:21 2000//
+/nfs_node.c/1.1.1.1/Sat May  6 20:55:21 2000//
+/nfs_nqlease.c/1.1.1.1/Sat May  6 20:55:22 2000//
+/nfs_serv.c/1.1.1.1/Sat May  6 20:55:23 2000//
+/nfs_socket.c/1.1.1.1/Sat May  6 20:55:24 2000//
+/nfs_srvcache.c/1.1.1.1/Sat May  6 20:55:24 2000//
+/nfs_subs.c/1.1.1.1/Sat May  6 20:55:25 2000//
+/nfs_syscalls.c/1.1.1.1/Sat May  6 20:55:26 2000//
+/nfs_vfsops.c/1.1.1.1/Sat May  6 20:55:26 2000//
+/nfs_vnops.c/1.1.1.1/Sat May  6 20:55:27 2000//
+/nfsdiskless.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nfsm_subs.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nfsmount.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nfsnode.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nfsrtt.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nfsrvcache.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nfsv2.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/nqnfs.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/rpcv2.h/1.1.1.1/Sat May  6 20:55:28 2000//
+/xdr_subs.h/1.1.1.1/Sat May  6 20:55:28 2000//
+D

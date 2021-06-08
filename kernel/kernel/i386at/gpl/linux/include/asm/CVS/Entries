@@ -1,0 +1,27 @@
+/bitops.h/1.1.1.1/Sat May  6 21:38:23 2000//
+/byteorder.h/1.1.1.1/Sat May  6 21:38:23 2000//
+/delay.h/1.1.1.1/Sat May  6 21:38:23 2000//
+/dma.h/1.2/Fri Oct 27 01:04:57 2000//
+/errno.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/fcntl.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/floppy.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/io.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/ioctl.h/1.2/Fri Oct 27 01:04:57 2000//
+/irq.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/page.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/param.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/processor.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/ptrace.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/resource.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/segment.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/sigcontext.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/signal.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/socket.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/stat.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/statfs.h/1.1.1.1/Sat May  6 21:38:24 2000//
+/string.h/1.2/Fri Oct 27 01:04:57 2000//
+/system.h/1.1.1.1/Sat May  6 21:38:25 2000//
+/termios.h/1.1.1.1/Sat May  6 21:38:25 2000//
+/types.h/1.1.1.1/Sat May  6 21:38:26 2000//
+/unistd.h/1.1.1.1/Sat May  6 21:38:26 2000//
+D

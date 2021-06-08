@@ -1,0 +1,90 @@
+From: Johannes Helander <jvh@cs.hut.fi>
+To: Ian Dall <dall@hfrd.dsto.gov.au>
+Cc: lites@cs.hut.fi
+Subject: Re: Current snapshot (1107)
+Date: Wed, 9 Nov 1994 03:28:34 +0200
+
+Ian Dall writes:
+ > by trying an old emulator. It would be handy if you can highlight
+ > releases which you know are incompatable with the old emulator.
+
+I was thinking of incrementing the minor version number when this
+happens. However, if I do snapshots often enough I might forget to do
+that. Like the previous one was just a tar of my work tree as I
+kind of indicated in the ftp area.
+
+ > Are there any notes on building using the gnu environment?  I've no
+
+Here are some:
+o Install gcc and binutils for the relevant target architectures.
+  Gcc must be 2.5.8 or newer.
+o Create an object directory
+o cd there
+o run configure
+o gmake
+o gmake install
+
+Configure takes a few options
+--build=BBB		specifies the machine you are building on.
+
+--host=TTT		specifies the target (this is confusing. It ought to
+			be --target).
+
+--prefix=III		specifies the install area.
+
+--srcdir=SSS		specifies where the source is.
+
+--with-release=RRR	specifies a Mach release tree (sup one from
+			CMU for example). Libraries and includes not
+			found in the prefix directory are searched
+			from here.
+
+--enable-debug		adds +DEBUG to the configuration
+
+--enable-profiling	adds -DGPROF and -pg and uses libmach_sa_p.a etc.
+
+--with-config=CCC	sets the server configuration. See
+			conf/MASTER.h and other MASTER files. The default is
+			STD+WS.
+
+Here is a sample shell script I use for running configure:
+----------------- begin runconfigure.sh -----------------------
+#!/bin/sh -x
+
+cd /obj/lites
+mkdir obj
+cd obj
+
+# Example: cross compile pmax -> i386
+
+/p/mach/mach3/work/src/lites/configure -v --host=i386-mach --build=mips-dec-mach --prefix=/obj/lites/inst --srcdir=/p/mach/mach3/work/src/lites --enable-debug --with-release=/p/mach/mach3/work/export/pmax_mach_X_i386_lite $*
+
+#--enable-profiling
+----------------- end runconfigure.sh -----------------------
+
+
+If you are compiling Mach4 then you should first complie and install
+it with the same install directory.  If you are using Mach3 then you
+need to create a release tree with the kernel etc. In theory you could
+pick up a standard MK83a release and build with that.
+
+Mach4 moved some includes etc. so Lites might not compile without some
+minor tweaking with it at the moment.  Perhaps some ifdefs or similar
+could take care of the differences so we could use both.
+
+ > I must check. Maybe emulator is using the exec_file.c without me being
+ > aware of it!
+
+It seems we are out of sync again.  If I make snapshots all the time
+you will get versions that might not compile or work or whatever. If I
+make them too seldom (every other day or so) you will end up with out
+of sync code. But don't worry, I will have to do some other work for a
+while soon so there will be a slowdown.
+
+Let's do it this way: whenever I make a reasonably working snapshot
+(compiles, boots), I'll send an announcement to the list. Intermediate
+versions will just appear and you are on your own (like the previous
+one).
+
+	Johannes
+

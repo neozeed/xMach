@@ -1,0 +1,159 @@
+From: Johannes Helander <jvh@cs.hut.fi>
+To: lites
+Subject: Snapshot, Changes, TODO list.
+--text follows this line--
+There is a new snapshot in leia.cs.hut.fi:foggy/lites/LITES.941116.tar.gz
+
+It doesn't differ from the previous intermediate snapshot that much
+but has a few fixes.  Here are some changes from a period of about two
+weeks.
+
+- mapped gettimeofday is now enabled on all i386 configurations by
+  default.
+	The kernel crash is avoided by not inheriting the kernel page
+	but instead remapping after fork.  Somebody ought to fix the
+	kernel in the future but the problem is no longer acute.
+	Linux gettimeofday is now 500 times faster (in the worst
+	vs. best case).
+
+	The char devices /dev/time (25,0) and /dev/timezone (26,0) are
+	needed (use mknod).
+
+- The server now uses Mach error numbers everywhere.  The emulator
+  translates the errors to a suitable errno depending on the running
+  binary.
+	sys/errno.h hides the differences.  For source compatibilty
+	reasons the server uses the traditional defines. The numeric
+	values are just different.
+
+	mach_error_string may be used to get a string corresponding to
+	the internal error code.  NOTE: mach_error_string has a bug
+	that makes it return NULL sometimes.  The explanation is
+	simply that the library code assumes it is doing unsigned
+	coparisons.  Unfortunately kern_return_t (and transitively
+	mach_error_t) is signed.  Either libmach or kern_return.h
+	needs to be fixed.
+
+- There is a preliminary mips port.
+	The server works, binaries are loaded, system calls are
+	performed.  No signals, no Ultrix support yet. I might
+	continue on this if I have time (I doubt it).
+
+	Two CMU files in the mips port are not included in the list of
+	files I have signed from CMU.  They must be either replaced or
+	cleared in a future additional list.
+
+- The server and emulator now share a new exec code.
+	The exec is divided in more stages:
+	- find file and fetch header
+	- look at header and guess what binary it is
+	- parse header according to guess and turn it into internal
+	  representation. Currently AOUT, ECOFF, and SOM are
+	  supported.  The internal form is an array of sections and a
+	  load info struct.
+	- walk through the sections and call a mapping method for
+	  each..
+	- Setup the execution environment according to the load info.
+
+	BSS dirty page clearing used to be a pain from the server.
+	The server now sets two registers in the user thread (it calls
+	thread_set_state anyways) and ecrt0.c does the zeroing.
+	In the emulator exec it is simpler: just bzero the area.
+	ecrt0.c is a machine dependent part of the emulator.  The
+	register reading is easy to do with gcc asm variables.
+
+- The signal code is patched to work a little more.  It is still
+  a mess and needs a total redesign.
+
+- Job control works with Linux programs.  Signal numbers are
+  translated in more places such as wait4.
+
+- Lite system calls are on by default.  The e_lite_sysent.c could be
+  made MI soon.
+
+- There is a new alternative build environment that uses gmake,
+  autoconf, and a couple of scripts.  ODE still works but will
+  probably deteriorate over time.
+
+	conf/* has new configuration files. server/conf/* is ODE.  For
+	ODE to survive a bit longer it should be chnaged to use the
+	configuration scripts in conf/* instead of the config program
+	and related scripts.
+
+	The gmake environment is most notably missing shadowing which
+	shouldn't be impossible to add.  Cross compilation works with
+	both environments.  The emulator building should be more
+	similar to the server building.  The emulator make files
+	automatically picks up all files it can find.  I don't think
+	this is a particularly good idea.  A simple list of files in
+	the makefile makes it possible to be more selective.
+
+- SysV shared memory for making Doom faster.
+	The totally emulator implementation makes files in /tmp/shm/
+	and pages to them.  /etc/rc needs to create the directory and
+	empty it on boot.
+
+	The implementation is still untested as my X server binary did
+	not support shared memory extensions.  An X server with this
+	feature is needed.
+
+- STD+WS now works without +DEBUG also on i386
+	This was due to mapin_user not initializing the address given
+	to vm_map.  vm_map's anywhere option is TRUE but it seems the
+	kernel only scans from the given address forward and gives up
+	when it hits the end.  I think this behavior is ok even if not
+	really expected.  The simple fix is to zero the address hint
+	always.
+
+TODO
+----
+
+- A library for code common to the server and emulator and perhaps later
+  other programs.
+      At least exec_file.c, bcopy etc., ntoh, and so on could be moved
+      there.
+      Requires changes to the build system.
+
+- Figure out how to avoid deadlocking risks arising from printf
+  calling functions taking locks.  Printf is called in a large variety
+  of places where all kinds of locks may be held.  Printing to ttys,
+  selwakeup, etc. in this situation creates a big potential for
+  deadlock.
+
+	I added a comment next to printf noting this problem.
+
+- Fix and test build environment so that building on Linux and BSD
+  really works.
+
+- Enhance the sysv support to make it real.
+
+- 64 bit cleanup.
+
+- Add support for Linux and or BSD X servers.  This is mostly related
+  to virtual consoles I think.
+
+- Write /sbin/cored -- the core dumping daemon.
+
+- Experiment with +ether_as_syscall and get it to work enough to make
+  it default.
+	This is about running protocol stacks on the network input
+	thread instead of going through netisrs.  It is important for
+	simplifying splx and the whole spl mechanism.  Also network
+	latency ought to decrease.
+
+	The first select in inetd didn't wake up last time I tried.
+	After this I've fixed some bug related to select but there are
+	still some uncertainty related to sockets so this might be a
+	difficult thing to debug.
+
+- Fix /proc and other Lite stuff that is in conf/MASTER.h listed in
+  the UNTESTED, ALMOST, and NOTYET categories.
+
+More later.
+
+     Johannes
+
+--------------
+- Add syncing of memory object cleaning to all fsyncs.
+- Wait for memory object cleaning to complete when should wait is set
+  in fsync.

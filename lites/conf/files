@@ -1,0 +1,372 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1994 Johannes Helander
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * JOHANNES HELANDER ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  JOHANNES HELANDER DISCLAIMS ANY LIABILITY OF ANY KIND
+ * FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ */
+/*
+ * HISTORY
+ * $Log: files,v $
+ * Revision 1.2  2000/10/27 01:53:08  welchd
+ *
+ * Updated to latest source
+ *
+ * Revision 1.5  1995/08/15  06:53:39  gback
+ * minor screwup in files wrt to ext2fs filenames fixed
+ *
+ * Revision 1.4  1995/08/15  06:48:17  sclawson
+ * modifications from lites-1.1-950808
+ *
+ * Revision 1.3  1995/08/13  03:39:31  gback
+ * added files needed for MSDOS FS support server/msdosfs tree
+ *
+ * Revision 1.2  1995/08/10  23:27:10  gback
+ * added files for EXT2FS option
+ *
+ * Revision 1.1.1.1  1995/03/02  21:49:26  mike
+ * Initial Lites release from hut.fi
+ *
+ */
+/* 
+ *	File:	conf/files
+ *	Author:	Johannes Helander, Helsinki University of Technology, 1994.
+ *
+ *	List of Machine independent files that are part of the Lites server.
+ */
+
+file			conf/param.c
+
+fileif	cd9660		isofs/cd9660/cd9660_bmap.c
+fileif	cd9660		isofs/cd9660/cd9660_lookup.c
+fileif	cd9660		isofs/cd9660/cd9660_node.c
+fileif	cd9660		isofs/cd9660/cd9660_rrip.c
+fileif	cd9660		isofs/cd9660/cd9660_util.c
+fileif	cd9660		isofs/cd9660/cd9660_vfsops.c
+fileif	cd9660		isofs/cd9660/cd9660_vnops.c
+file			kern/init_main.c
+file			kern/init_sysent.c
+file			kern/kern_acct.c
+fileif	old_clock	serv/kern_clock.c
+file			kern/kern_descrip.c
+file			kern/kern_exit.c
+fileif	lites		serv/serv_fork.c
+fileif	ktrace		kern/kern_ktrace.c
+file			kern/kern_proc.c
+file			kern/kern_prot.c
+file			kern/kern_resource.c
+file			kern/kern_sig.c
+file			kern/kern_subr.c
+file			kern/kern_sysctl.c
+file			kern/kern_time.c
+file			kern/kern_xxx.c
+file			kern/subr_log.c
+file			kern/subr_prf.c
+file			kern/subr_xxx.c
+file			kern/sys_generic.c
+file			kern/sys_socket.c
+fileif	sysvshm		kern/sysv_shm.c
+file			kern/tty.c
+file			kern/tty_compat.c
+file			kern/tty_conf.c
+fileif	pty		kern/tty_pty.c
+file			kern/tty_subr.c
+fileif	tb		kern/tty_tb.c
+file			kern/tty_tty.c
+file			kern/uipc_domain.c
+file			kern/uipc_mbuf.c
+file			kern/uipc_proto.c
+file			kern/uipc_socket.c
+file			kern/uipc_socket2.c
+file			kern/uipc_syscalls.c
+file			kern/uipc_usrreq.c
+file			kern/vfs_bio.c
+file			kern/vfs_cache.c
+file			kern/vfs_cluster.c
+file			kern/vfs_conf.c
+file			kern/vfs_init.c
+file			kern/vfs_lookup.c
+file			kern/vfs_subr.c
+file			kern/vfs_syscalls.c
+file			kern/vfs_vnops.c
+file			kern/sys_process.c
+file			kern/vnode.c
+file			miscfs/deadfs/dead_vnops.c
+fileif	fdesc		miscfs/fdesc/fdesc_vfsops.c
+fileif	fdesc		miscfs/fdesc/fdesc_vnops.c
+fileif	fifo		miscfs/fifofs/fifo_vnops.c
+fileif	kernfs		miscfs/kernfs/kernfs_vfsops.c
+fileif	kernfs		miscfs/kernfs/kernfs_vnops.c
+fileif	nullfs		miscfs/nullfs/null_subr.c
+fileif	nullfs		miscfs/nullfs/null_vfsops.c
+fileif	nullfs		miscfs/nullfs/null_vnops.c
+fileif	portal		miscfs/portal/portal_vfsops.c
+fileif	portal		miscfs/portal/portal_vnops.c
+fileif	procfs		miscfs/procfs/procfs_subr.c
+fileif	procfs		miscfs/procfs/procfs_vnops.c
+fileif	procfs		miscfs/procfs/procfs_vfsops.c
+fileif	procfs		miscfs/procfs/procfs_note.c
+fileif	procfs		miscfs/procfs/procfs_mem.c
+fileif	procfs		miscfs/procfs/procfs_ctl.c
+fileif	procfs		miscfs/procfs/procfs_status.c
+fileif	procfs		miscfs/procfs/procfs_regs.c
+fileif	procfs		miscfs/procfs/procfs_fpregs.c
+file			miscfs/specfs/spec_vnops.c
+fileif	umapfs		miscfs/umapfs/umap_subr.c
+fileif	umapfs		miscfs/umapfs/umap_vfsops.c
+fileif	umapfs		miscfs/umapfs/umap_vnops.c
+fileif	union		miscfs/union/union_subr.c
+fileif	union		miscfs/union/union_vfsops.c
+fileif	union		miscfs/union/union_vnops.c
+fileif	devfs		miscfs/devfs/devfs_vfsops.c
+fileif	devfs		miscfs/devfs/devfs_vnops.c	
+fileif	bpfilter	net/bpf.c
+fileif	bpfilter	net/bpf_filter.c
+file			net/if.c
+fileif	ether		net/if_ethersubr.c
+file			net/if_loop.c
+fileif	sl		net/if_sl.c
+fileif	ppp		net/if_ppp.c
+file			net/radix.c
+file			net/raw_cb.c
+file			net/raw_usrreq.c
+file			net/route.c
+file			net/rtsock.c
+fileif	sl		net/slcompress.c
+fileif	ppp		net/slcompress.c
+fileif	ccitt		netccitt/ccitt_proto.c
+fileif	llc		netccitt/llc_input.c
+fileif	llc		netccitt/llc_output.c
+fileif	llc		netccitt/llc_subr.c
+fileif	llc		netccitt/llc_timer.c
+fileif	llc		netccitt/pk_llcsubr.c
+fileif	hdlc		netccitt/pk_llcsubr.c
+fileif	hdlc		netccitt/hd_debug.c
+fileif	hdlc		netccitt/hd_input.c
+fileif	hdlc		netccitt/hd_output.c
+fileif	hdlc		netccitt/hd_subr.c
+fileif	hdlc		netccitt/hd_timer.c
+fileif	ccitt		netccitt/if_x25subr.c
+fileif	ccitt		netccitt/pk_acct.c
+fileif	ccitt		netccitt/pk_debug.c
+fileif	ccitt		netccitt/pk_input.c
+fileif	ccitt		netccitt/pk_output.c
+fileif	ccitt		netccitt/pk_subr.c
+fileif	ccitt		netccitt/pk_timer.c
+fileif	ccitt		netccitt/pk_usrreq.c
+fileif	imp		netimp/if_imp.c
+fileif	imp		netimp/if_imphost.c
+fileif	imp		netimp/raw_imp.c
+fileif	ether		netinet/if_ether.c
+fileif	inet		netinet/igmp.c
+fileif	inet		netinet/in.c
+fileif	inet		netinet/in_pcb.c
+fileif	inet		netinet/in_proto.c
+fileif	inet		netinet/ip_icmp.c
+fileif	inet		netinet/ip_input.c
+fileif	mrouting	netinet/ip_mroute.c
+fileif	inet		netinet/ip_output.c
+fileif	inet		netinet/raw_ip.c
+fileif	inet		netinet/tcp_debug.c
+fileif	inet		netinet/tcp_input.c
+fileif	inet		netinet/tcp_output.c
+fileif	inet		netinet/tcp_subr.c
+fileif	inet		netinet/tcp_timer.c
+fileif	inet		netinet/tcp_usrreq.c
+fileif	inet		netinet/udp_usrreq.c
+fileif	iso		netiso/clnp_debug.c
+fileif	iso		netiso/clnp_er.c
+fileif	iso		netiso/clnp_frag.c
+fileif	iso		netiso/clnp_input.c
+fileif	iso		netiso/clnp_options.c
+fileif	iso		netiso/clnp_output.c
+fileif	iso		netiso/clnp_raw.c
+fileif	iso		netiso/clnp_subr.c
+fileif	iso		netiso/clnp_timer.c
+fileif	iso		netiso/cltp_usrreq.c
+fileif	iso		netiso/esis.c
+fileif	iso		netiso/idrp_usrreq.c
+fileif	eon		netiso/if_eon.c
+fileif	iso		netiso/iso.c
+fileif	iso		netiso/iso_chksum.c
+fileif	iso		netiso/iso_pcb.c
+fileif	iso		netiso/iso_proto.c
+fileif	iso		netiso/iso_snpac.c
+fileif	iso		netiso/tp_astring.c
+fileif	tpip		netiso/tp_astring.c
+fileif	iso		netiso/tp_cons.c
+fileif	iso		netiso/tp_driver.c
+fileif	tpip		netiso/tp_driver.c
+fileif	iso		netiso/tp_emit.c
+fileif	tpip		netiso/tp_emit.c
+fileif	iso		netiso/tp_inet.c
+fileif	tpip		netiso/tp_inet.c
+fileif	iso		netiso/tp_input.c
+fileif	tpip		netiso/tp_input.c
+fileif	iso		netiso/tp_iso.c
+fileif	iso		netiso/tp_meas.c
+fileif	tpip		netiso/tp_meas.c
+fileif	iso		netiso/tp_output.c
+fileif	tpip		netiso/tp_output.c
+fileif	iso		netiso/tp_pcb.c
+fileif	tpip		netiso/tp_pcb.c
+fileif	iso		netiso/tp_subr.c
+fileif	tpip		netiso/tp_subr.c
+fileif	iso		netiso/tp_subr2.c
+fileif	tpip		netiso/tp_subr2.c
+fileif	iso		netiso/tp_timer.c
+fileif	tpip		netiso/tp_timer.c
+fileif	iso		netiso/tp_trace.c
+fileif	tpip		netiso/tp_trace.c
+fileif	iso		netiso/tp_usrreq.c
+fileif	tpip		netiso/tp_usrreq.c
+fileif	iso||tuba	netiso/tuba_subr.c
+fileif	iso||tuba	netiso/tuba_table.c
+fileif	iso||tuba	netiso/tuba_usrreq.c
+fileif	ns		netns/idp_usrreq.c
+fileif	ns		netns/ns.c
+fileif	ns		netns/ns_error.c
+fileif	ns		netns/ns_input.c
+fileif	ns		netns/ns_ip.c
+fileif	ns		netns/ns_output.c
+fileif	ns		netns/ns_pcb.c
+fileif	ns		netns/ns_proto.c
+fileif	ns		netns/spp_debug.c
+fileif	ns		netns/spp_usrreq.c
+fileif	nfs		nfs/nfs_bio.c
+fileif	nfs		nfs/nfs_node.c
+fileif	nfs		nfs/nfs_nqlease.c
+fileif	nfs		nfs/nfs_serv.c
+fileif	nfs		nfs/nfs_socket.c
+fileif	nfs		nfs/nfs_srvcache.c
+fileif	nfs		nfs/nfs_subs.c
+fileif	nfs		nfs/nfs_syscalls.c
+fileif	nfs		nfs/nfs_vfsops.c
+fileif	nfs		nfs/nfs_vnops.c
+fileif	ffs		ufs/ffs/ffs_alloc.c
+fileif	mfs		ufs/ffs/ffs_alloc.c
+fileif	ffs		ufs/ffs/ffs_balloc.c
+fileif	mfs		ufs/ffs/ffs_balloc.c
+fileif	ffs		ufs/ffs/ffs_inode.c
+fileif	mfs		ufs/ffs/ffs_inode.c
+fileif	ffs		ufs/ffs/ffs_subr.c
+fileif	mfs		ufs/ffs/ffs_subr.c
+fileif	ffs		ufs/ffs/ffs_tables.c
+fileif	mfs		ufs/ffs/ffs_tables.c
+fileif	ffs		ufs/ffs/ffs_vfsops.c
+fileif	mfs		ufs/ffs/ffs_vfsops.c
+fileif	ffs		ufs/ffs/ffs_vnops.c
+fileif	mfs		ufs/ffs/ffs_vnops.c
+fileif	lfs		ufs/lfs/lfs_alloc.c
+fileif	lfs		ufs/lfs/lfs_bio.c
+fileif	lfs		ufs/lfs/lfs_balloc.c
+fileif	lfs		ufs/lfs/lfs_cksum.c
+fileif	lfs		ufs/lfs/lfs_debug.c
+fileif	lfs		ufs/lfs/lfs_inode.c
+fileif	lfs		ufs/lfs/lfs_segment.c
+fileif	lfs		ufs/lfs/lfs_subr.c
+fileif	lfs		ufs/lfs/lfs_syscalls.c
+fileif	lfs		ufs/lfs/lfs_vfsops.c
+fileif	lfs		ufs/lfs/lfs_vnops.c
+fileif	mfs		ufs/mfs/mfs_vfsops.c
+fileif	mfs		ufs/mfs/mfs_vnops.c
+file			ufs/ufs/ufs_bmap.c
+file			ufs/ufs/ufs_ihash.c
+file			ufs/ufs/ufs_inode.c
+file			ufs/ufs/ufs_lockf.c
+file			ufs/ufs/ufs_lookup.c
+file			ufs/ufs/ufs_quota.c
+file			ufs/ufs/ufs_vfsops.c
+file			ufs/ufs/ufs_vnops.c
+
+fileif	lites		serv/vm_glue.c
+fileif	lites		serv/block_io.c
+fileif	lites		serv/cons.c
+fileif	lites		serv/device_misc.c
+fileif	lites		serv/device_reply_hdlr.c
+fileif	lites		serv/device_utils.c
+fileif	lites		serv/disk_io.c
+fileif	lites		serv/tape_io.c
+fileif	lites		serv/ether_io.c
+fileif	lites		serv/inittodr.c
+fileif	lites		serv/misc.c
+fileif	lites		serv/proc_to_task.c
+fileif	lites		serv/ux_syscall.c
+fileif	lites		serv/syscall_subr.c
+fileif	lites		serv/tty_io.c
+fileif	lites		serv/user_copy.c
+fileif	lites		serv/user_reply_msg.c
+fileif	lites		serv/ux_exception.c
+fileif	lites		serv/ux_server_loop.c
+fileif	lites		serv/bsd_server.c
+fileif	lites		serv/bsd_server_side.c
+fileif	lites		serv/zalloc.c
+fileif	lites		serv/cmu_syscalls.c
+fileif	lites		serv/netisr.c
+fileif	lites		serv/server_init.c
+fileif	lites		serv/serv_syscalls.c
+fileif	lites		serv/vm_syscalls.c
+fileif	lites		serv/select.c
+fileif	lites		serv/proc_stats.c
+
+/* Notify handler */ fileif lites serv/notify_interface.c
+
+/* New vnode pager */
+fileif	vnpager		serv/xmm_interface.c
+fileif	vnpager		serv/vn_pager_misc.c
+
+/* Allow a second server to run under another BSD server: */
+fileif	second_server	serv/second_traps.s
+fileif	second_server	serv/second_cons.c
+
+fileif	lites		serv/timer.c
+fileif	lites		serv/server_exec.c
+fileif	lites		serv/port_object.c
+fileif	lites		serv/sendsig.c
+fileif	lites		serv/signal_user.c
+fileif	lites		serv/mapped_timezone.c
+fileif	map_pipe	serv/mapped_pipe.c
+
+fileif	old_synch	serv/serv_synch.c
+fileif	data_synch	serv/synch_prim.c
+/* Until cthreads is updated use a pricate copy */
+fileif	data_synch	serv/cprocs.c
+
+fileif	machid_register	serv/mach_init_ports.c
+file			./kern/syscalls.c
+file			./vnode_if.c
+
+/* Library support */
+file			libkern/scanc.c
+file			libkern/skpc.c
+file			libkern/mach_error.c
+file			libkern/queue.c
+
+/* Linux file systems */
+fileif	ext2fs		ufs/ext2fs/ext2_vfsops.c
+fileif	ext2fs		ufs/ext2fs/ext2_vnops.c
+fileif	ext2fs		ufs/ext2fs/ext2_subr.c
+fileif	ext2fs		ufs/ext2fs/ext2_lookup.c
+fileif	ext2fs		ufs/ext2fs/ext2_alloc.c
+fileif	ext2fs		ufs/ext2fs/ext2_balloc.c
+fileif	ext2fs		ufs/ext2fs/ext2_linux_ialloc.c
+fileif	ext2fs		ufs/ext2fs/ext2_linux_balloc.c
+fileif	ext2fs		ufs/ext2fs/ext2_inode.c
+fileif	ext2fs		ufs/ext2fs/ext2_inode_cnv.c
+fileif	minixfs		ufs/minixfs/minixfs_vfsops.c
+fileif	minixfs		ufs/minixfs/minixfs_vnops.c
+fileif	minixfs		ufs/minixfs/minixfs_lookup.c
+fileif	msdosfs		msdosfs/msdosfs_conv.c
+fileif	msdosfs		msdosfs/msdosfs_denode.c
+fileif	msdosfs		msdosfs/msdosfs_fat.c
+fileif	msdosfs		msdosfs/msdosfs_lookup.c
+fileif	msdosfs		msdosfs/msdosfs_vfsops.c
+fileif	msdosfs		msdosfs/msdosfs_vnops.c

@@ -1,0 +1,180 @@
+LITES README -- Johannes Helander <jvh@cs.hut.fi>, June 3, 1994
+
+STATUS
+------
+This is a very preliminary version of LITES. There is very little
+contamination left. However, CMU has not yet had a chance to look
+through their unpublished code and many files are still lacking proper
+copyrights. Also the 4.4BSD Lite distribution is not yet available.
+All in all it is not yet for public distribution.
+
+Any comments about missing attributions etc. are most welcome at this
+time.
+
+FILES
+-----
+MK-changes	contains the changes to MK83 needed for LITES plus a
+few extra. Most libthreads changes are only needed for the deadlock
+inspection code in gdb.
+
+USER-changes	contains changes to USER22 needed for LITES. They are
+mostly path changes and other small things plus support for
+machid_register (useful for second server debugging). In the end there
+is a pile of diffs to gdb in case someone wants to do something with
+them.
+
+FILES.BSDSS	is a list of files taken from BSDSS and where I at
+some point thought where they came from. It is not up to date anymore.
+
+FILES.Lite	was the list of 4.4BSD Lite originally imported to
+LITES. Not up to date either.
+
+README		is this file.
+
+server		has the server code.
+
+emulator	is the new emulator that goes with the server. It is not
+compatible with earlier servers and the server does not talk to old
+emulators.
+
+BINARIES
+--------
+Only the i386 is supported at the moment. NetBSD, FreeBSD, UX, Linux,
+and 386BSD binaries are supported including shared libraries. To get
+more speed with Linux binaries you should use a special version of the
+shared libc. There is also very preliminary support for Interactive
+binaries but not many programs besides /bin/echo work from SysV.
+
+There are limitations to the binary compatibility, however. First,
+there is no /dev/kmem. Second, the file system layout, routing, mount,
+and NFS interfaces are those of 4.4BSD Lite and no emulation has been
+written as the benefit would be rather marginal as only a few programs
+are affected (fsck could hardly even be emulated however much you
+try).
+
+route, mount, fsck, nfsd, mount_nfs, mount_kernfs, mount_*
+should be taken from Lite.
+
+ps, top, w, mach_init
+should be taken from USER. mach_init may be replaced by a symlink to
+/sbin/init if a Mach name server is not used.
+
+BUGS
+----
+tsleep and friends is very fragile code that gets broken every time I
+touch anything even near it. The whole wait mechanism should be
+replaced. Also signal handling needs to be reworked. The current bug
+is that select in tail -f sometimes fails with "interrupted system
+call" when ^Z is pressed. Sometimes ^Z doesn't work at all.
+
+memory leak: Something leaks pages in units of three pages where every
+set has a 16 (maybe it was 13?) word struct in the beginning. This
+gets annoying in the long run and I haven't yet figured out where the
+pages come from. Memory comes from at least:
+malloc, zalloc, ether_input, copyin, bio_read_reply, mapped uarea,
+mapped time, m_copym for clusters, exec (argument movement),
+memory_object_data_request
+
+CONTAMINATION
+-------------
+The following files may contain something that makes them suspicious
+(net2 origin or unknown origin):
+
+	NO FILES.
+
+All other files are believed to be clean. If you find anything
+indicating something else, let me know so the situation can be fixed.
+
+There are a few copyright categories:
+- 4.4Lite copyrights
+- CMU copyrights (mostly code by Randall Dean)
+- HUT copyrights (code by me)
+- CMU + HUT combined copyrights (rwd and me)
+- CMU + HUT combined and 4.4Lite copyrights
+- One file by John Dyson with changes by me.
+
+COMPILATION
+-----------
+The build environment is ODE. You need to build mk (except the
+kernel) first to get the libraries and include files. For
+machid_register you need to build USER partially.
+
+I use gcc 2.5.8. The old, about 3.3 version produced incorrect code
+for long long arithmetic. 64 bit long longs are used in file offsets.
+
+The emulator currently is expected to be in UX binary format. Send me
+mail if you need some other binary format for that.
+
+RUNNING IT
+----------
+I've run the server as second server all the time with gdb attached to
+it. There is no sense in trying to debug the code with a kernel
+debugger as gdb can be used. It should work as the first server too.
+
+Run it like this from your other server (could be LITES as well):
+./vmunix.LITES1.STD+WS+DEBUG -2h sd1a /dev/sd1a/mach_servers
+assuming sd1a is the root partition. Instead of 2 you can use 3 to get
+different pids checked into the machid server.
+-h is going to suspend the server right away. That is useful for
+debugging as you can then attach to it with your gdb. Do not use -h
+for the first server.
+
+FILE SYSTEM LAYOUT
+------------------
+The file system is the same as in net2 except that the superblock
+format has slightly changed. Thus a net2 fsck will always fail
+complaining about the superblock. Just answer yes and that's it. A new
+fsck binary should get rid of that annoyance. A UX fsck should not be
+used at all as the file system has changed a lot. Supposedly you can
+convert your old 4.3BSD file systems to a new one by running fsck a
+few times. I did this for a couple of disks and they still work.
+
+There is no RFS. The directory layout is as in any BSD except that you
+should have a /mach_servers directory. It should have
+- paging_file
+- startup (a symlink to the server binary)
+- the server
+- emulator
+- emulator.old (will be used if emulator is not found)
+- mach_init (may be a symlink to /sbin/init)
+
+The device numbers are those of NetBSD with iopl (22,0), kbd (23,0),
+abd mouse (24,0) added. The console is 0,0, rsd 13,n, and sd 4,n.
+
+TODO
+----
+Many files should be cleaned up and given a second write to get some
+elegance.
+
+Profiling support. This would be one of the most useful things to do.
+
+Ansification -- since the code won't compile without gcc anyways there
+is no sense in keeping the functions pre-ANSI.
+
+Ports to other platforms.
+
+Integration of CMU's dosfs.
+
+Getting mdos working.
+
+Getting rid of the two unnecessary copies on the pagein path. Perhaps
+a new VFS method should be added?
+
+Implementing writes in the vnode pager.
+
+Testing the NFS server side and all the new file systems.
+
+Fixing and testing network protocols besides inet. They almost compile
+and almost link now.
+
+Replacing the tsleep-spl-netisr mess with a sane synchronization
+scheme. This involves changing the way network packets are delivered.
+Network performance should also be measured to help analyze how it
+*should* be done.
+
+Making it possible to use shell scripts as shell script interpreters.
+At the same time clean up the code from any remnants from old code.
+
+Make the sysV emulation real and useful.
+
+...

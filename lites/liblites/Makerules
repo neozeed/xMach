@@ -1,0 +1,80 @@
+# 
+# Mach Operating System
+# Copyright (c) 1994 Johannes Helander
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# JOHANNES HELANDER ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  JOHANNES HELANDER DISCLAIMS ANY LIABILITY OF ANY KIND
+# FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+#
+# HISTORY
+# $Log: Makerules,v $
+# Revision 1.2  2000/10/27 01:55:29  welchd
+#
+# Updated to latest source
+#
+# Revision 1.1.1.1  1995/03/02  21:49:39  mike
+# Initial Lites release from hut.fi
+#
+#
+# liblites.a is a library that is linked against both the Lites server
+# and the Lites emulator.
+
+include $(SRCDIR)/Makefile-version
+
+SECTIONS = liblites/$(TARGET_MACHINE) liblites
+
+DEFINES += -DMACH_IPC_COMPAT=0 -DQUEUE_ASSERTIONS=0
+INCDIRS += ${SRCDIR}/liblites ../server
+
+# XXX
+TARGET_CFLAGS	+= -g ${EMUL_TARGET_CFLAGS}
+HOST_CFLAGS += ${EMUL_HOST_CFLAGS}
+
+LIBNAME=lites
+
+all: lib${LIBNAME}.a lib${LIBNAME}_p.a
+
+include $(SRCDIR)/conf/Makerules
+include $(SRCDIR)/conf/$(TARGET_MACHINE)/Makerules
+
+i386_OBJFILES = ntoh.o memcmp.o in_cksum.o
+parisc_OBJFILES =
+ns532_OBJFILES = misc_asm.o memcmp.o in_cksum.o bcmp.o
+mips_OBJFILES = ntoh.o memcmp.o bcmp.o
+alpha_OBJFILES = ntoh.o bcmp.o memcmp.o
+
+OBJFILES = ${${TARGET_MACHINE}_OBJFILES} exec_file.o
+OFILES_P = $(patsubst %.o,%_p.o,${OBJFILES})
+
+# XXX ar may require different flags on different platforms. Move to autoconf.
+ARFLAGS = cq
+
+lib${LIBNAME}.a: ${OBJFILES}
+	rm -f $@
+	${AR} ${ARFLAGS} $@ ${OBJFILES}
+	${RANLIB} $@
+
+lib${LIBNAME}_p.a: ${OFILES_P}
+	rm -f $@
+	${AR} ${ARFLAGS} $@ ${OFILES_P}
+	${RANLIB} $@
+
+install: $(INSTALL_LIBDIR)/lib${LIBNAME}.a $(INSTALL_LIBDIR)/lib${LIBNAME}_p.a
+
+$(INSTALL_LIBDIR)/lib${LIBNAME}.a: lib${LIBNAME}.a
+	${MKDIR} $(patsubst %/,%,$(dir $@))
+	${INSTALL} -m 644 $< $@
+
+$(INSTALL_LIBDIR)/lib${LIBNAME}_p.a: lib${LIBNAME}_p.a
+	${MKDIR} $(patsubst %/,%,$(dir $@))
+	${INSTALL} -m 644 $< $@
+
+CLEAN_FILES += ${OBJFILES} ${OFILES_P}

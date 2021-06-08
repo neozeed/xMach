@@ -1,0 +1,69 @@
+#
+# Copyright (c) 1994, The University of Utah and
+# the Computer Systems Laboratory at the University of Utah (CSL).
+#
+# Permission to use, copy, modify and distribute this software is hereby
+# granted provided that (1) source code retains these copyright, permission,
+# and disclaimer notices, and (2) redistributions including binaries
+# reproduce the notices in supporting documentation, and (3) all advertising
+# materials mentioning features or use of this software display the following
+# acknowledgement: ``This product includes software developed by the Computer
+# Systems Laboratory at the University of Utah.''
+#
+# THE UNIVERSITY OF UTAH AND CSL ALLOW FREE USE OF THIS SOFTWARE IN ITS "AS
+# IS" CONDITION.  THE UNIVERSITY OF UTAH AND CSL DISCLAIM ANY LIABILITY OF
+# ANY KIND FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+# CSL requests users of this software to return to csl-dist@cs.utah.edu any
+# improvements that they make and grant CSL redistribution rights.
+#
+# HISTORY
+# $Log: Makerules,v $
+# Revision 1.2  2000/10/27 01:53:08  welchd
+#
+# Updated to latest source
+#
+# Revision 1.1.1.2  1995/03/23  01:15:22  law
+# lites-950323 from jvh.
+#
+#
+
+# This file contains i386-specific make rules for all of Lites.
+#
+# SRCDIR must be set to the directory of the i386 source tree.
+# SECTIONS must be set to any optional sections to activate.
+# (The current directory is assumed to be the object directory.)
+
+
+# Get rid.
+DEFINES += -Di386
+
+
+# Required compiler/assembler flags.
+# Note that we don't have to bother with HOST_anything
+# for assembly language sources:
+# the host probably can't execute i386 assembly language anyway.
+TARGET_ASFLAGS	+= -DASSEMBLER -D__LANGUAGE_ASSEMBLY
+
+
+# The generic source tree doesn't know about assembly language,
+# so we work it out here.
+# The SRCDIRS variable isn't complete yet
+# (it doesn't have the generic directories in it),
+# but that's no problem because we know there's no assembly language
+# in the generic directories anyway.
+ifdef COLLECT_SFILES
+SFILES += $(filter %.s,$(FILES))
+endif
+
+GEN_OBJFILES += $(sort $(addsuffix .o,$(basename $(notdir $(SFILES)))))
+
+
+%.o: %.s
+	@echo
+	$(TARGET_CC) -x assembler-with-cpp -c $(CPPFLAGS) $(ASFLAGS) $(TARGET_CPPFLAGS) $(TARGET_ASFLAGS) -MD $<
+
+%_p.o: %.s
+	@echo
+	$(TARGET_CC) -x assembler-with-cpp -pg -DGPROF -c $(CPPFLAGS) $(ASFLAGS) $(TARGET_CPPFLAGS) $(TARGET_ASFLAGS) -MD $< -o $@
+

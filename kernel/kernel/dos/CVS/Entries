@@ -1,0 +1,15 @@
+/dos_buf.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_check_err.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_close.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_fstat.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_gettimeofday.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_io.h/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_open.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_read.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_rename.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_seek.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_tcgetattr.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_unlink.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/dos_write.c/1.1.1.1/Sat May  6 21:37:42 2000//
+/putchar.c/1.1.1.1/Sat May  6 21:37:42 2000//
+D

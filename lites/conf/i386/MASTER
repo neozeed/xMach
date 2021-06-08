@@ -1,0 +1,91 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1994 Johannes Helander
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * JOHANNES HELANDER ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  JOHANNES HELANDER DISCLAIMS ANY LIABILITY OF ANY KIND
+ * FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ */
+/* 
+ * HISTORY
+ * $Log: MASTER,v $
+ * Revision 1.2  2000/10/27 01:53:08  welchd
+ *
+ * Updated to latest source
+ *
+# Revision 1.1.1.1  1995/03/02  21:49:26  mike
+# Initial Lites release from hut.fi
+#
+ *
+ */
+/* 
+ *	File:	conf/i386/MASTER
+ *	Author:	Johannes Helander, Helsinki University of Technology, 1994.
+ *	Date:	October 1994
+ *
+ *	Lites configuration file for the i386.
+ */
+
+/*
+ * The master files are preprocessed and then run through an awk script that
+ * decides what to do.
+ * 
+ * The config statement must be first. Any preprocessor magic
+ * affecting the configuration should be done before it.
+ * 
+ * 
+ * config CONFIG
+ * specifies the configuration CONFIG is a list of options separated by
+ * spaces, plus (+) signs, or minus (-) signs.  Spaces and pluses add to
+ * the set, minuses remove.  Options are processed from left to right.
+ * 
+ * file FILENAME
+ * specifies that the given file name is always part of the program.
+ * 
+ * fileif OPTION FILENAME
+ * The file is included if the option is part of the configuration.
+ * 
+ * options OPTION DEFINE VALUE FILE
+ * The preprocessor symbol DEFINE is defined to be VALUE if OPTION is part of
+ * the configuration or zero otherwise. The definition is made in the file
+ * FILE.
+ * 
+ * makeoptions OPTION MAKEFILESTUFF
+ * MAKEFILESTUFF is read by make when the program is being built iff OPTION
+ * is part of the configuration.
+ */
+
+/* get global defines */
+#include <conf/MASTER.h>
+
+#define  ANY	du+i386
+#define  WS	i386+iopl+com
+
+/* Set LITES configuration */
+config CONFIG
+
+
+/* Support for X11. */
+options		iopl	IOPL	1	iopl.h
+options		iopl	MOUSE	1	mouse.h
+options		iopl	KBD	1	kbd.h
+
+options		ppp
+options		ether
+options		inet
+options		extfs
+
+makeoptions	i386	TARGET_LDFLAGS += -e __start
+/* Get other configuration files */
+/*#include <conf/i386/MASTER.local>*/
+#include <conf/MASTER.local>
+#include <conf/MASTER>
+#include <conf/files>
+#include <conf/i386/files>

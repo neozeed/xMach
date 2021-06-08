@@ -1,0 +1,198 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1994 Johannes Helander
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * JOHANNES HELANDER ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  JOHANNES HELANDER DISCLAIMS ANY LIABILITY OF ANY KIND
+ * FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ */
+/*
+ * HISTORY
+ * $Log: MASTER,v $
+ * Revision 1.2  2000/10/27 01:53:08  welchd
+ *
+ * Updated to latest source
+ *
+# Revision 1.6  1996/03/14  21:07:37  sclawson
+# Made slice option a true option.
+#
+# Revision 1.5  1996/02/17  01:05:42  sclawson
+# added --enable-slice option.
+#
+# Revision 1.4  1995/08/15  06:48:14  sclawson
+# modifications from lites-1.1-950808
+#
+# Revision 1.3  1995/08/13  03:38:27  gback
+# added MSDOS FS option
+#
+# Revision 1.2  1995/08/10  23:22:33  gback
+# added EXT2FS option
+#
+# Revision 1.1.1.2  1995/03/23  01:15:20  law
+# lites-950323 from jvh.
+#
+ */
+/* 
+ *	File:	conf/MASTER
+ *	Author:	Johannes Helander, Helsinki University of Technology, 1994.
+ *
+ *	Machine independent configuration file for Lites.
+ */
+
+/* Server */
+options		muarea		MAP_UAREA	1	map_uarea.h
+options		second_server	SECOND_SERVER	1	second_server.h
+options		machid_register	MACHID_REGISTER	1	machid_register.h
+options		vnpager		VNPAGER		1	vnpager.h
+options		file_ports	FILE_PORTS	1	file_ports.h
+	/* Use mapped ethernet	*/
+options		map_ether	MAP_ETHER	1	map_ether.h
+	/* Use mapped time from kernel */
+options		mtime		MAP_TIME	1	map_time.h
+	/* @sys, @cpu, @host, @bin expansion in path names */
+options		atsys		NAMEI_MACROS	1	namei_macros.h
+
+/* Experimental features */
+	/* Protect and synchronize on data, not execution */
+options		data_synch	DATA_SYNCH	1	data_synch.h
+	/* No net thread or ISR */
+options	ether_as_syscall	ETHER_AS_SYSCALL 1	ether_as_syscall.h
+	/* Shared memory unp sockets */
+options		map_pipe	MAP_PIPE	1	map_pipe.h
+options		slice		DISKSLICE	1 	slice.h
+
+/* Debugging */
+options		debug		OPT_DEBUG	1	debug.h
+options		diagnostic	DIAGNOSTIC	1	diagnostic.h
+options		syscalltrace	SYSCALLTRACE	1	syscalltrace.h
+options		assertions	ASSERTIONS	1	assertions.h
+	/* Check queues */
+options	queue_assertions	QUEUE_ASSERTIONS 1	queue_assertions.h
+options	mutex_holder_assert	MUTEX_HOLDER_ASSERT 1	mutex_holder_assert.h
+
+/* Compat */
+options		compat_42	COMPAT_42	1	compat_42.h
+options		compat_43	COMPAT_43	1	compat_43.h
+options		compat_oldsock	COMPAT_OLDSOCK	1	compat_oldsock.h
+options		mach4		MACH4_INCLUDES	1	mach4_includes.h
+options		osfmach3	OSFMACH3	1	osfmach3.h
+makeoptions	osfmach3	TARGET_CFLAGS+=-D_ANSI_C_SOURCE -DOSF_LEDGERS=1 -DUNTYPED_IPC=1 -D__STDC__=1
+
+/* Networking */
+	/* Internet Protocol */
+options		inet		INET		1	inet.h
+	/* Multicast routing	*/
+options		mrouting	MROUTING	1	mrouting.h
+options		tcp_compat_42	TCP_COMPAT_42	1	tcp_compat_42.h
+options		iso		ISO	1	iso.h
+options		tpip		TPIP	1	tpip.h
+options		ns		NS	1	ns.h
+	/* XNS over IP */
+options		nsip		NSIP	1	nsip.h
+	/* X25 etc */
+options		ccitt		CCITT	1	ccitt.h
+options		gateway		GATEWAY	1	gateway.h
+	/* ISO over IP */
+options		eon		EON	1	eon.h
+options		llc		LLC	1	llc.h
+options		hdlc		HDLC	1	hdlc.h
+
+/* File systems */
+	/* Fast file system */
+options		ffs	FFS	1	ffs.h
+	/* ext2 file system */
+options		ext2fs	EXT2FS	1	ext2fs.h
+	/* msdos file system */
+options		msdosfs	MSDOSFS	1	msdosfs.h
+	/* Log file system	 */
+options		lfs	LFS	1	lfs.h
+	/* Memory file system	 */
+options		mfs	MFS	1	mfs.h
+	/* Network File System	 */
+options		nfs	NFS	1	nfs.h
+	/* File descriptor File System */
+options		fdesc	FDESC	1	fdesc.h
+options		portal	PORTAL	1	portal.h
+	/* Null File System	 */
+options		nullfs	NULLFS	1	nullfs.h
+options		umapfs	UMAPFS	1	umapfs.h
+	/* Kernel File System	 */
+options		kernfs	KERNFS	1	kernfs.h
+	/* Process File System	 */
+options		procfs	PROCFS	1	procfs.h
+	/* Andrew File System	 */
+options		afs	AFS	1	afs.h
+	/* ISO File System	 */
+options		cd9660	CD9660	1	cd9660.h
+	/* Union File System	 */
+options		union	UNION	1	union.h
+options		fifo	FIFO	1	fifo.h
+	/* Linux File System */
+options		ext2fs	EXT2FS	1	ext2fs.h
+	/* Linux Minix File System */
+options		minixfs	MINIXFS	1	minixfs.h
+	/* Device File System */
+options		devfs	DEVFS	1	devfs.h
+
+/* Misc */
+options		sysvshm	SYSVSHM	1	sysvshm.h
+options		quota	QUOTA	1	quota.h
+
+/*
+# See if these are anything useful.
+options		!bsmall	GENERIC	
+options		rmp	RMP			1	rmp.h
+options		kmemstats	KMEMSTATS	1	kmemstats.h
+*/
+options		trace	TRACE			1	trace.h
+options		ktrace	KTRACE			1	ktrace.h
+
+/*  Ethernet (ARP) */
+options		ether		NETHER		1	ether.h
+
+/*   SL-IP */
+options		sl		NSL		1	sl.h
+options		tb		NTB		1	tb.h
+
+/* PPP */
+options		ppp		NPPP		1	ppp.h
+
+/* Packet filter */
+options		bpfilter	NBPFILTER	1	bpfilter.h
+
+/* Number of communication ttys: */
+options		com		NCOM		4	com.h
+
+/*  UCB pseudo terminal service */
+options		pty		NPTY		80	pty.h
+options		standard	NNETTHREADS	1	netthreads.h
+/*options		mbclusters	256*/
+
+/*options		vnodepager	1 */
+
+/* pseudo-device	log */
+options		hy		NHY		1	hy.h
+options		imp		NIMP		1	imp.h
+
+
+	/* build for profiling	 */
+profile		gprof
+
+makeoptions	lineno		TARGET_CFLAGS+=-g
+/*makeoptions	standard	DEFINES+=-DMACH_IPC_COMPAT=0*/
+
+/*makeoptions	machid_register	LIBMACHID=-lmachid */
+/*makeoptions	machid_register	LIBMACHID_P=-lmachid_p */
+/*makeoptions	machid_register	LIBNETNAME=-lnetname */
+/*makeoptions	machid_register	LIBNETNAME_P=-lnetname_p */
+
+	/* turn off all optimizations */
+makeoptions	noopt	TARGET_OPTIMIZE_CFLAGS = -O0 -Dregister=
+

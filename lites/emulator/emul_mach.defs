@@ -1,0 +1,163 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1992 Carnegie Mellon University
+ * Copyright (c) 1994 Johannes Helander
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON AND JOHANNES HELANDER ALLOW FREE USE OF THIS
+ * SOFTWARE IN ITS "AS IS" CONDITION.  CARNEGIE MELLON AND JOHANNES
+ * HELANDER DISCLAIM ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ */
+/*
+ * HISTORY
+ * $Log: emul_mach.defs,v $
+ * Revision 1.2  2000/10/27 01:55:27  welchd
+ *
+ * Updated to latest source
+ *
+# Revision 1.1.1.1  1995/03/02  21:49:28  mike
+# Initial Lites release from hut.fi
+#
+ */
+/* 
+ *	File:	emulator/emul_mach.defs
+ *	Author:	Johannes Helander, Helsinki University of Technology, 1994.
+ *	Origin:	edited from MK mach.defs
+ *
+ *	Special version of thread_suspend for the emulator.
+ */
+
+subsystem
+#if	KERNEL_USER
+	  KernelUser
+#endif	KERNEL_USER
+#if	KERNEL_SERVER
+	  KernelServer
+#endif	KERNEL_SERVER
+		       mach 2000;
+
+#ifdef	KERNEL_USER
+userprefix r_;
+#endif	KERNEL_USER
+
+#include <mach/std_types.defs>
+#include <mach/mach_types.defs>
+
+skip;	/* old port_allocate */
+skip;	/* old port_deallocate */
+skip;	/* old port_enable */
+skip;	/* old port_disable */
+skip;	/* old port_select */
+skip;	/* old port_set_backlog */
+skip;	/* old port_status */
+
+skip;	/* task_create */
+skip;	/* task_terminate */
+skip;	/* task_get_emulation_vector */
+skip;	/* task_set_emulation_vector */
+skip;	/* task_threads */
+skip;	/* task_info */
+skip;	/* old task_status */
+skip;	/* old task_set_notify */
+skip;	/* old thread_create */
+skip;	/* thread_terminate */
+skip;	/* thread_get_state */
+skip;	/* thread_set_state */
+skip;	/* thread_info */
+skip;	/* old thread_mutate */
+skip;	/* vm_allocate */
+skip;	/* old vm_allocate_with_pager */
+skip;	/* vm_deallocate */
+skip;	/* vm_protect */
+skip;	/* vm_inherit */
+skip;	/* vm_read */
+skip;	/* vm_write */
+skip;	/* vm_copy */
+skip;	/* vm_region */
+skip;	/* vm_statistics */
+skip;	/* old task_by_u*x_pid */
+skip;	/* old vm_pageable */
+skip;	/* mach_ports_register */
+skip;	/* mach_ports_lookup */
+skip;	/* old u*x_pid */
+skip;	/* old netipc_listen */
+skip;	/* old netipc_ignore */
+skip;	/* memory_object_data_provided */
+skip;	/* memory_object_data_unavailable */
+skip;	/* memory_object_get_attributes */
+skip;	/* vm_set_default_memory_manager */
+skip;	/* old pager_flush_request */
+skip;	/* xxx_memory_object_lock_request */
+skip;	/* memory_object_lock_request */
+skip;	/* xxx_task_get_emulation_vector */
+skip;	/* xxx_task_set_emulation_vector */
+skip;	/* xxx_host_info */
+skip;	/* xxx_slot_info */
+skip;	/* xxx_cpu_control */
+skip;	/* old thread_statistics */
+skip;	/* old task_statistics */
+skip;	/* old netport_init */
+skip;	/* old netport_enter */
+skip;	/* old netport_remove */
+skip;	/* old thread_set_priority */
+skip;	/* task_suspend */
+skip;	/* task_resume */
+skip;	/* task_get_special_port */
+skip;	/* task_set_special_port */
+skip;	/* xxx_task_info */
+skip;	/* thread_create */
+
+routine	emul_thread_suspend(
+		target_thread	: thread_t;
+	ureplyport reply	: mach_port_make_send_once_t);
+
+skip;	/* thread_resume */
+skip;	/* thread_abort */
+skip;	/* xxx_thread_get_state */
+skip;	/* xxx_thread_set_state */
+skip;	/* thread_get_special_port */
+skip;	/* thread_set_special_port */
+skip;	/* xxx_thread_info */
+skip;	/* task_set_emulation */
+skip;	/* task_ras_control */
+skip;	/* old host_ipc_statistics */
+
+skip;	/* old port_names */
+skip;	/* old port_type */
+skip;	/* old port_rename */
+skip;	/* old port_allocate */
+skip;	/* old port_deallocate */
+skip;	/* old port_set_backlog */
+skip;	/* old port_status */
+skip;	/* old port_set_allocate */
+skip;	/* old port_set_deallocate */
+skip;	/* old port_set_add */
+skip;	/* old port_set_remove */
+skip;	/* old port_set_status */
+skip;	/* old port_insert_send */
+skip;	/* old port_extract_send */
+skip;	/* old port_insert_receive */
+skip;	/* old port_extract_receive */
+skip;	/* vm_map */
+skip;	/* memory_object_data_error */
+skip;	/* memory_object_set_attributes */
+skip;	/* memory_object_destroy */
+skip;	/* memory_object_data_supply */
+skip;	/* memory_object_ready */
+skip;	/* memory_object_change_attributes */
+skip;	/* old host_callout_statistics_reset */
+skip;	/* old port_set_select */
+skip;	/* old port_set_backup */
+skip;	/* vm_machine_attribute */
+skip;	/* old host_fpa_counters_reset */
+
+/*
+ *	There is no more room in this interface for additional calls.
+ */

@@ -1,0 +1,101 @@
+./server/i386/conf.c:387:		if (copyin(((struct absio *)data)->abs_buf, buf, 512))
+./server/isofs/cd9660/cd9660_vfsops.c:155:	if (error = copyin(data, (caddr_t)&args, sizeof (struct iso_args)))
+./server/isofs/cd9660/cd9660_vfsops.c:200:	(void) copyinstr(path, imp->im_fsmnt, sizeof(imp->im_fsmnt)-1, &size);
+./server/isofs/cd9660/cd9660_vfsops.c:204:	(void) copyinstr(args.fspec, mp->mnt_stat.f_mntfromname, MNAMELEN - 1,
+./server/kern/vfs_syscalls.c:839:	if (error = copyinstr(uap->path, path, MAXPATHLEN, NULL))
+./server/kern/vfs_syscalls.c:1506:	} else if (error = copyin((caddr_t)uap->tptr, (caddr_t)tv, sizeof (tv)))
+./server/kern/vfs_subr.c:1202:	if (error = copyin(argp->ex_addr, (caddr_t)saddr, argp->ex_addrlen))
+./server/kern/vfs_subr.c:1208:		error = copyin(argp->ex_addr, (caddr_t)smask, argp->ex_masklen);
+./server/kern/vfs_lookup.c:112:		error = copyinstr(ndp->ni_dirp, cnp->cn_pnbuf,
+./server/kern/kern_prot.c:366:	if (error = copyin((caddr_t)uap->gidset,
+./server/kern/kern_prot.c:587:	error = copyinstr((caddr_t) uap->namebuf,
+./server/kern/uipc_syscalls.c:168:	if (uap->name && (error = copyin((caddr_t)uap->anamelen,
+./server/kern/uipc_syscalls.c:667:	if (error = copyin((caddr_t)uap->alen, (caddr_t)&len, sizeof (len)))
+./server/kern/uipc_syscalls.c:711:	if (error = copyin((caddr_t)uap->alen, (caddr_t)&len, sizeof (len)))
+./server/kern/uipc_syscalls.c:804:	error = copyin(buf, mtod(m, caddr_t), (u_int)buflen);
+./server/kern/uipc_syscalls.c:841:	if (error = copyin(uap->msg, (caddr_t)&msg, sizeof (msg)))
+./server/kern/uipc_syscalls.c:852:	    (error = copyin((caddr_t)msg.msg_iov, (caddr_t)iov,
+./server/kern/uipc_syscalls.c:981:	if (error = copyin((caddr_t)uap->msg, (caddr_t)&msg, sizeof (msg)))
+./server/kern/uipc_syscalls.c:998:	if (error = copyin((caddr_t)uiov, (caddr_t)iov,
+./server/kern/sys_generic.c:158:	if (error = copyin((caddr_t)uap->iovp, (caddr_t)iov, iovlen))
+./server/kern/sys_generic.c:307:	if (error = copyin((caddr_t)uap->iovp, (caddr_t)iov, iovlen))
+./server/kern/sys_generic.c:410:			error = copyin(uap->data, data, (u_int)size);
+./server/kern/kern_time.c:102:	    (error = copyin((caddr_t)uap->tv, (caddr_t)&atv, sizeof(atv))))
+./server/kern/kern_time.c:105:	    (error = copyin((caddr_t)uap->tzp, (caddr_t)&atz, sizeof(atz))))
+./server/kern/kern_time.c:151:	    copyin((caddr_t)uap->delta, (caddr_t)&atv, sizeof(struct timeval)))
+./server/kern/kern_time.c:269:	if (itvp && (error = copyin((caddr_t)itvp, (caddr_t)&aitv,
+./server/kern/kern_sysctl.c:105:	if (error = copyin(uap->name, &name, uap->namelen * sizeof(int)))
+./server/kern/kern_sysctl.c:143:	    (error = copyin(uap->oldlenp, &oldlen, sizeof(oldlen))))
+./server/kern/kern_sysctl.c:395:		error = copyin(newp, valp, sizeof(int));
+./server/kern/kern_sysctl.c:444:		error = copyin(newp, str, newlen);
+./server/kern/kern_sysctl.c:495:		error = copyin(newp, sp, len);
+./server/kern/kern_sysctl.c:754:	    (error = copyin((caddr_t)uap->size, (caddr_t)&size, sizeof(size))))
+./server/kern/kern_subr.c:135:				error = copyin(iov->iov_base, cp, cnt);
+./server/kern/kern_sig.c:172:		if (error = copyin((caddr_t)uap->nsa, (caddr_t)sa,
+./server/kern/kern_sig.c:389:		if (error = copyin((caddr_t)uap->nsv, (caddr_t)sv,
+./server/kern/kern_sig.c:448: * libc stub passes mask, not pointer, to save a copyin.
+./server/kern/kern_sig.c:503:	if (uap->nss && (error = copyin((caddr_t)uap->nss, (caddr_t)&ss,
+./server/kern/kern_sig.c:536:	if (error = copyin((caddr_t)uap->nss, (caddr_t)&ss, sizeof (ss)))
+./server/kern/kern_resource.c:221:	    copyin((caddr_t)uap->lim, (caddr_t)&olim, sizeof (struct orlimit)))
+./server/kern/kern_resource.c:266:	    copyin((caddr_t)uap->lim, (caddr_t)&alim, sizeof (struct rlimit)))
+./server/kern/kern_descrip.c:276:		error = copyin((caddr_t)uap->arg, (caddr_t)&fl, sizeof (fl));
+./server/kern/kern_descrip.c:308:		error = copyin((caddr_t)uap->arg, (caddr_t)&fl, sizeof (fl));
+./server/serv/tape_io.c:266:	    if (copyin(iov->iov_base, kern_addr, (u_int)iov->iov_len)) {
+./server/serv/cmu_syscalls.c:538:			        error = copyin(uap->addr, buff, size);
+./server/serv/device_misc.c:350:	    /* make sure that copyin will do the right thing */
+./server/serv/device_misc.c:357:	    if (copyin(X_kdb->ptr, X_kdb_buffer, X_kdb->size))
+./server/serv/disk_io.c:162:	    if (copyin(iov->iov_base, kern_addr, (u_int)iov->iov_len)) {
+./server/miscfs/fdesc/fdesc_vfsops.c:94:	(void) copyinstr(path, mp->mnt_stat.f_mntonname, MNAMELEN - 1, &size);
+./server/miscfs/kernfs/kernfs_vfsops.c:156:	(void) copyinstr(path, mp->mnt_stat.f_mntonname, MNAMELEN - 1, &size);
+./server/miscfs/nullfs/null_vfsops.c:90:	if (error = copyin(data, (caddr_t)&args, sizeof(struct null_args)))
+./server/miscfs/nullfs/null_vfsops.c:147:	(void) copyinstr(path, mp->mnt_stat.f_mntonname, MNAMELEN - 1, &size);
+./server/miscfs/nullfs/null_vfsops.c:149:	(void) copyinstr(args.target, mp->mnt_stat.f_mntfromname, MNAMELEN - 1, 
+./server/miscfs/portal/portal_vfsops.c:96:	if (error = copyin(data, (caddr_t) &args, sizeof(struct portal_args)))
+./server/miscfs/portal/portal_vfsops.c:125:	(void)copyinstr(path, mp->mnt_stat.f_mntonname, MNAMELEN - 1, &size);
+./server/miscfs/portal/portal_vfsops.c:127:	(void)copyinstr(args.pa_config,
+./server/miscfs/procfs/procfs_vfsops.c:86:	(void) copyinstr(path, (caddr_t)mp->mnt_stat.f_mntonname, MNAMELEN, &size);
+./server/miscfs/umapfs/umap_vfsops.c:89:	if (error = copyin(data, (caddr_t)&args, sizeof(struct umap_args)))
+./server/miscfs/umapfs/umap_vfsops.c:132:	error = copyin(args.mapdata, (caddr_t)amp->info_mapdata, 
+./server/miscfs/umapfs/umap_vfsops.c:144:	error = copyin(args.gmapdata, (caddr_t)amp->info_gmapdata, 
+./server/miscfs/umapfs/umap_vfsops.c:188:	(void) copyinstr(path, mp->mnt_stat.f_mntonname, MNAMELEN - 1, &size);
+./server/miscfs/umapfs/umap_vfsops.c:190:	(void) copyinstr(args.target, mp->mnt_stat.f_mntfromname, MNAMELEN - 1, 
+./server/miscfs/union/union_vfsops.c:128:	if (error = copyin(data, (caddr_t)&args, sizeof(struct union_args)))
+./server/miscfs/union/union_vfsops.c:233:	(void) copyinstr(path, mp->mnt_stat.f_mntonname, MNAMELEN - 1, &size);
+./server/miscfs/union/union_vfsops.c:253:	(void) copyinstr(args.target, cp, len - 1, &size);
+./server/net/bpf.c:821:	if (copyin((caddr_t)fp->bf_insns, (caddr_t)fcode, size) == 0 &&
+./server/nfs/nfs_vfsops.c:365:	if (error = copyin(data, (caddr_t)&args, sizeof (struct nfs_args)))
+./server/nfs/nfs_vfsops.c:367:	if (error = copyin((caddr_t)args.fh, (caddr_t)&nfh, sizeof (nfsv2fh_t)))
+./server/nfs/nfs_vfsops.c:369:	if (error = copyinstr(path, pth, MNAMELEN-1, &len))
+./server/nfs/nfs_vfsops.c:372:	if (error = copyinstr(args.hostname, hst, MNAMELEN-1, &len))
+./server/nfs/nfs_syscalls.c:179:		if (error = copyin(uap->argp, (caddr_t)&ncd, sizeof (ncd)))
+./server/nfs/nfs_syscalls.c:198:		if (error = copyin(uap->argp, (caddr_t)&nfsdarg,
+./server/nfs/nfs_syscalls.c:213:		if (error = copyin(uap->argp, (caddr_t)nsd, sizeof (*nsd)))
+./server/nfs/nfs_subs.c:388:				copyin(uiocp, mtod(mp, caddr_t)+mp->m_len, xfer);
+./server/nfs/nfs_nqlease.c:980:				copyin(ncd->ncd_authstr, nmp->nm_authstr,
+./server/ufs/ffs/ffs_vfsops.c:156:	if (error = copyin(data, (caddr_t)&args, sizeof (struct ufs_args)))
+./server/ufs/ffs/ffs_vfsops.c:223:	(void) copyinstr(path, fs->fs_fsmnt, sizeof(fs->fs_fsmnt) - 1, &size);
+./server/ufs/ffs/ffs_vfsops.c:227:	(void) copyinstr(args.fspec, mp->mnt_stat.f_mntfromname, MNAMELEN - 1, 
+./server/ufs/lfs/lfs_vfsops.c:105:	if (error = copyin(data, (caddr_t)&args, sizeof (struct ufs_args)))
+./server/ufs/lfs/lfs_vfsops.c:165:	(void) copyinstr(path, fs->fs_fsmnt, sizeof(fs->fs_fsmnt) - 1, &size);
+./server/ufs/lfs/lfs_vfsops.c:169:	(void) copyinstr(args.fspec, mp->mnt_stat.f_mntfromname, MNAMELEN - 1,
+./server/ufs/lfs/lfs_vfsops.c:174:	(void)copyinstr(path, fs->lfs_fsmnt, sizeof(fs->lfs_fsmnt) - 1, &size);
+./server/ufs/lfs/lfs_vfsops.c:178:	(void) copyinstr(args.fspec, mp->mnt_stat.f_mntfromname, MNAMELEN - 1,
+./server/ufs/lfs/lfs_syscalls.c:111:	if (error = copyin(uap->fsidp, &fsid, sizeof(fsid_t)))
+./server/ufs/lfs/lfs_syscalls.c:118:	if (error = copyin(uap->blkiov, start, cnt * sizeof(BLOCK_INFO)))
+./server/ufs/lfs/lfs_syscalls.c:206:			    (error = copyin(blkp->bi_bp, bp->b_data,
+./server/ufs/lfs/lfs_syscalls.c:281:	if (error = copyin(uap->fsidp, &fsid, sizeof(fsid_t)))
+./server/ufs/lfs/lfs_syscalls.c:288:	if (error = copyin(uap->blkiov, blkp, cnt * sizeof(BLOCK_INFO))) {
+./server/ufs/lfs/lfs_syscalls.c:340:	if (error = copyin(uap->fsidp, &fsid, sizeof(fsid_t)))
+./server/ufs/lfs/lfs_syscalls.c:402:	if (error = copyin(uap->fsidp, &fsid, sizeof(fsid_t)))
+./server/ufs/lfs/lfs_syscalls.c:412:	if (error = copyin(uap->fsidp, &fsid, sizeof(fsid_t)))
+./server/ufs/lfs/lfs_syscalls.c:421:		if (error = copyin(uap->tv, &atv, sizeof(struct timeval)))
+./server/ufs/lfs/lfs_syscalls.c:508:		if (error = copyin(dinp, &ip->i_din, sizeof(struct dinode)))
+./server/ufs/lfs/lfs_segment.c:799:			if (copyin((*bpp)->b_saveaddr, dp++, sizeof(u_long)))
+./server/ufs/lfs/lfs_segment.c:857:				if (copyin(bp->b_saveaddr, p, bp->b_bcount))
+./server/ufs/mfs/mfs_vnops.c:249:		bp->b_error = copyin(offset, kernaddr, bp->b_bcount);
+./server/ufs/mfs/mfs_vnops.c:282:		bp->b_error = copyin(base, bp->b_data, bp->b_bcount);
+./server/ufs/mfs/mfs_vfsops.c:191:	if (error = copyin(data, (caddr_t)&args, sizeof (struct mfs_args)))
+./server/ufs/mfs/mfs_vfsops.c:240:	(void) copyinstr(path, fs->fs_fsmnt, sizeof(fs->fs_fsmnt) - 1, &size);
+./server/ufs/mfs/mfs_vfsops.c:244:	(void) copyinstr(args.fspec, mp->mnt_stat.f_mntfromname, MNAMELEN - 1,
+./server/ufs/ufs/ufs_quota.c:530:	if (error = copyin(addr, (caddr_t)&newlim, sizeof (struct dqblk)))
+./server/ufs/ufs/ufs_quota.c:591:	if (error = copyin(addr, (caddr_t)&usage, sizeof (struct dqblk)))

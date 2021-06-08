@@ -1,0 +1,4 @@
+/* jvh 941014 */
+
+options		standard	TIMEZONE	420	timezone.h
+options		standard	DST		DST_USA	dst.h

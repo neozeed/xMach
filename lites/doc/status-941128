@@ -1,0 +1,99 @@
+From: Johannes Helander <jvh@cs.hut.fi>
+To: lites@cs.hut.fi
+Subject: Snapshot 941128 and some plans
+Date: Tue, 29 Nov 1994 01:37:25 +0200
+
+Another pre-release snapshot is available from Leia.
+
+New this weekend:
+* Memory object caches and buffer caches are kept consistent.
+* Sync cleans memory objects.  This time the speed is ok.
+* Lites boots on mips with Ultrix binaries.  The port is still
+  incomplete though.
+* More warning options are added and zillions of warnings are
+  eliminated.
+* More type cleanup.
+
+The diffs from November 16 are rather large (290k unidiff).  This is
+mostly due to 64 bit fixes and other fixes as well as eliminating
+warnings.  A few files have changed a lot for other reasons.
+
+Unfortunately large diffs now and later will make life hard for other
+developers but that can't be helped except by quick integration.
+
+I have not fixed warnings in files that I haven't otherwise changed
+much.  This is to make integration of FreeBSD and NetBSD fixes easier.
+If someone has time to look at merging file system and other changes
+that'd be most useful.  I won't get to that in 2-4 months I think.
+
+Instead I plan to fix the following bugs:
+- mapped file sizes get rounded up on pageout. Should believe ftrunc.
+- perhaps fix the mips port a bit more.
+- fix copyrights etc. administrative stuff.
+- integrate all the great code you send me. (or most of it anyway).
+- make a public release soon (this could be called version 0.X).
+
+	more sometimes 1995.
+
+
+
+Other bugs that are known but not being worked on:
+
+- umount doesn't seem to do enough flushing
+  (if you first run fsck and then do mount -u there will still be junk
+  in the caches).
+- gdb stack traces from the emulator to user space doesn't work on the
+  MIPS.  I can't see what's wrong in the debug info I wrote in the
+  assembly code or what is going wrong and I'm ready to give up on
+  this.
+- NFS between Lites and most our servers doesn't work.  It works with
+  some old sun4s though.  NetBSD doesn't work any better in this
+  respect.  I already picked up some fixes in the early stages of
+  Lites and tested it with a sparc box then.
+- Support for Linux/FreeBSD/NetBSD X servers is missing.
+
+Here is an old but still valid todo list:
+
+- A library for code common to the server and emulator and perhaps later
+  other programs.
+      At least exec_file.c, bcopy etc., ntoh, and so on could be moved
+      there.
+      Requires changes to the build system.
+
+- Figure out how to avoid deadlocking risks arising from printf
+  calling functions taking locks.  Printf is called in a large variety
+  of places where all kinds of locks may be held.  Printing to ttys,
+  selwakeup, etc. in this situation creates a big potential for
+  deadlock.
+
+	I added a comment next to printf noting this problem.
+
+- Fix and test build environment so that building on Linux and BSD
+  really works.
+
+- Enhance the sysv support to make it real.
+
+- 64 bit cleanup.	[PARTIALLY DONE]
+
+- Add support for Linux and or BSD X servers.  This is mostly related
+  to virtual consoles I think.
+
+- Write /sbin/cored -- the core dumping daemon.
+
+- Experiment with +ether_as_syscall and get it to work enough to make
+  it default.
+	This is about running protocol stacks on the network input
+	thread instead of going through netisrs.  It is important for
+	simplifying splx and the whole spl mechanism.  Also network
+	latency ought to decrease.
+
+	The first select in inetd didn't wake up last time I tried.
+	After this I've fixed some bug related to select but there are
+	still some uncertainty related to sockets so this might be a
+	difficult thing to debug.
+
+- Fix /proc and other Lite stuff that is in conf/MASTER.h listed in
+  the UNTESTED, ALMOST, and NOTYET categories.
+
+---
+	Johannes

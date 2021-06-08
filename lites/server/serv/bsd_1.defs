@@ -1,0 +1,614 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1992 Carnegie Mellon University
+ * Copyright (c) 1994,1995 Johannes Helander
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON AND JOHANNES HELANDER ALLOW FREE USE OF THIS
+ * SOFTWARE IN ITS "AS IS" CONDITION.  CARNEGIE MELLON AND JOHANNES
+ * HELANDER DISCLAIM ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ */
+/* 
+ *	File: serv/bsd_1.defs
+ *	Authors:
+ *	Randall Dean, Carnegie Mellon University, 1992.
+ *	Johannes Helander, Helsinki University of Technology, 1994.
+ *
+ * 	emulator server IPC interface definitions.
+ */
+
+/* NOTE: Do not use types longer than mach_msg_size_t after
+ * a variable size inline data in the same direction (in/inout
+ * or out/inout) parameter. It will fail on 64 bit machines.
+ * (on the Alpha MiG doesn't do the alignment right).
+ */
+
+subsystem bsd_1		101000;
+
+#include <mach/mach_types.defs>
+#include <serv/bsd_types.defs>
+#include <mach_debug/mach_debug_types.defs>
+#ifdef USENRPC
+#include <serv/Nbsd_1.defs>
+#else
+
+/* An alternative execve that zaps the old task and moves the args */
+routine bsd_execve(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		arg_addr	: vm_address_t;
+		arg_size	: vm_size_t;
+		arg_count	: int;
+		env_count	: int;
+		fname		: path_name_t);
+
+/* Should be called by child ONCE after exec */
+routine bsd_after_exec(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	out	arg_addr	: vm_address_t;
+	out	arg_size	: vm_size_t;
+	out	arg_count	: int;
+	out	env_count	: int;
+	out	image_port	: mach_port_move_send_t;
+	out	emul_name	: path_name_t;
+	out	fname		: path_name_t;
+	out	cfname		: path_name_t;
+	out	cfarg		: path_name_t);
+
+routine bsd_vm_map(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	inout	address		: vm_address_t;
+		size		: vm_size_t;
+		mask		: vm_address_t;
+		anywhere	: boolean_t;
+		memory_object_representative	: mach_port_t;
+		offset		: vm_offset_t;
+		copy		: boolean_t;
+		cur_protection	: vm_prot_t;
+		max_protection	: vm_prot_t;
+		inheritance	: vm_inherit_t);
+
+routine	bsd_fd_to_file_port(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+	out	port		: mach_port_move_send_t);
+
+routine	bsd_file_port_open(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		mode		: int;
+		crtmode		: int;
+		fname		: path_name_t;
+	out	port		: mach_port_move_send_t);
+
+/*
+ *	Returns information about the memory allocation zones.
+ */
+routine bsd_zone_info(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	out	names		: zone_name_array_t,
+					CountInOut, Dealloc;
+	out	info		: zone_info_array_t,
+					CountInOut, Dealloc);
+
+routine bsd_signal_port_register(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		sigport		: mach_port_make_send_t);
+
+routine bsd_fork(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		new_state	: thread_state_t;
+	out	child_pid	: int);
+
+routine bsd_vfork(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		new_state	: thread_state_t;
+	out	child_pid	: int);
+
+routine bsd_take_signal(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	out	old_mask	: sigset_t;
+	out	old_onstack	: int;
+	out	sig		: int;
+	out	code		: integer_t;
+	out	handler		: vm_offset_t;
+	out	new_sp		: vm_offset_t);
+
+routine bsd_sigreturn(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		old_on_stack	: int;
+		old_sigmask	: sigset_t);
+
+routine	bsd_getrusage(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		which		: int;
+	out	rusage		: rusage_t);
+
+
+/*
+ * File name calls
+ */
+routine	bsd_chdir(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fname		: path_name_t);
+
+routine	bsd_chroot(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fname		: path_name_t);
+
+routine	bsd_open(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		mode		: int;
+		crtmode		: int;
+		fname		: path_name_t;
+	out	fileno		: int);
+
+routine	bsd_mknod(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fmode		: int;
+		dev		: int;
+		fname		: path_name_t);
+
+routine	bsd_link(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		target		: path_name_t;
+		linkname	: path_name_t);
+
+routine	bsd_symlink(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		target		: path_name_t;
+		linkname	: path_name_t);
+
+routine	bsd_unlink(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fname		: path_name_t);
+
+routine	bsd_access(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fmode		: int;
+		fname		: path_name_t);
+
+routine	bsd_readlink(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		count		: int;
+		name		: path_name_t;
+	out	buf		: small_char_array);
+
+routine	bsd_utimes(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		times		: timeval_2_t;
+		fname		: path_name_t);
+
+routine	bsd_rename(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		from_name	: path_name_t;
+		to_name		: path_name_t);
+
+routine	bsd_mkdir(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		dmode		: int;
+		name		: path_name_t);
+
+routine	bsd_rmdir(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		name		: path_name_t);
+
+routine	bsd_acct(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		acct_on		: boolean_t;
+		fname		: path_name_t);
+
+/*
+ * Crucial IO
+ */
+routine	bsd_write_short(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		data		: small_char_array;
+	out	amount_written	: size_t);
+
+routine	bsd_write_long(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		data		: char_array;
+	out	amount_written	: size_t);
+
+routine	bsd_read_short(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		datalen		: int;		/* size of user buffer */
+	out	nread		: size_t;
+	out	data		: small_char_array);
+
+routine	bsd_read_long(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		datalen		: int;		/* size of user buffer */
+	out	nread		: size_t;
+	out	data		: char_array, dealloc);
+
+skip;	/* bsd_sendto_short */
+skip;	/* bsd_sendto_long */
+
+routine	bsd_select(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		nd		: int;
+	inout	in_set		: fd_set;
+	inout	ou_set		: fd_set;
+	inout	ex_set		: fd_set;
+		in_valid	: boolean_t;
+		ou_valid	: boolean_t;
+		ex_valid	: boolean_t;
+		do_timeout	: boolean_t;
+		tv		: timeval_t;
+	out	rval		: integer_t);
+
+/*
+ * Glue between MACH and U*X
+ */
+routine	bsd_task_by_pid(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		pid		: int;
+	out	task		: task_t = MACH_MSG_TYPE_PORT_SEND);
+
+/*
+ * More IO
+ */
+skip;	/* bsd_recvfrom_short */
+skip;	/* bsd_recvfrom_long */
+
+routine	bsd_setgroups(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    gidsetsize		: int;
+	    gidset		: gidset_t);
+
+routine	bsd_setrlimit(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    which		: int;
+	    lim			: rlimit_t);
+
+skip;	/* bsd_osigvec */
+
+routine	bsd_sigstack(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    have_nss		: boolean_t;
+	    nss			: sigstack_t;
+	out oss			: sigstack_t);
+
+routine	bsd_settimeofday(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    have_tv		: boolean_t;
+	    tv			: timeval_t;
+	    have_tz		: boolean_t;
+	    tz			: timezone_t);
+
+routine	bsd_adjtime(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    delta		: timeval_t;
+	out olddelta		: timeval_t);
+
+routine	bsd_setitimer(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    which		: int;
+	    have_itv		: boolean_t;
+	out oitv		: itimerval_t;
+	    itv			: itimerval_t);
+
+skip;	/* bsd_sethostname */
+
+routine	bsd_bind(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    s			: int;
+	    name		: sockarg_t);
+
+skip;	/* bsd_oaccept */
+
+routine	bsd_connect(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    s			: int;
+	    name		: sockarg_t);
+
+routine	bsd_setsockopt(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    s			: int;
+	    level		: int;
+	    name		: int;
+	    val			: sockarg_t);
+
+routine	bsd_getsockopt(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    s			: int;
+	    level		: int;
+	    name		: int;
+	out val			: sockarg_t);
+
+skip;	/* bsd_ogetsockname */
+skip;	/* bsd_ogetpeername */
+
+routine bsd_init_process(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t);
+
+routine	bsd_table_set(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    id			: int;
+	    index		: int;
+	    lel			: int;
+	    nel			: int;
+	    addr		: small_char_array;
+	out nel_done		: int);
+
+routine	bsd_table_get(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    id			: int;
+	    index		: int;
+	    lel			: int;
+	    nel			: int;
+	out addr		: char_array, dealloc;
+	out nel_done		: int);
+
+routine bsd_emulator_error(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	    err_message		: small_char_array);
+
+skip; /* bsd_readwrite */
+
+routine bsd_share_wakeup(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		lock_offset	: int);
+
+routine bsd_maprw_request_it(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int);
+
+routine bsd_maprw_release_it(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int);
+
+routine bsd_maprw_remap(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		offset		: int;
+		size		: int);
+
+/*
+ * More glue between MACH and U*X
+ */
+routine	bsd_pid_by_task(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		task		: task_t;
+	out	pid		: int;
+	out	command		: path_name_t);
+
+/*
+ * Server monitoring functions.
+ */
+routine bsd_mon_switch(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	inout	sample_flavor	: int);
+
+routine bsd_mon_dump(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+	out	mon_data	: char_array,dealloc);
+
+/* 
+ * vnode attribute interface
+ */
+routine bsd_getattr(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+	out	vattr		: vattr_t);
+
+routine bsd_setattr(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		vattr		: vattr_t);
+
+routine bsd_path_getattr(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		follow		: boolean_t;
+		path		: path_name_t;
+	out	vattr		: vattr_t);
+
+routine bsd_path_setattr(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		follow		: boolean_t;
+		path		: path_name_t;
+		vattr		: vattr_t);
+
+routine bsd_sysctl(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		mib		: mib_t; 
+		miblen		: int;
+	out	old		: char_array, dealloc;
+	inout	oldlen		: size_t;
+		new		: char_array;
+		newlen		: size_t;
+	out	retlen		: int);
+
+routine bsd_set_atexpansion(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		what_to_expand	: path_name_t;
+		expansion	: path_name_t);
+
+routine bsd_sendmsg_short(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;		/* socket */
+		flags		: int;
+		data		: small_char_array;
+		to		: sockarg_t;
+		cmsg		: sockarg_t;	/* an array of some size */
+	out	nsent		: size_t);
+
+routine bsd_sendmsg_long(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;		/* socket */
+		flags		: int;
+		data		: char_array;
+		to		: sockarg_t;
+		cmsg		: sockarg_t;	/* an array of some size */
+	out	nsent		: size_t);
+
+/* It would be better to let the server decide how to reply */
+routine bsd_recvmsg_short(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;		/* socket */
+		flags		: int;
+	out	outflags	: int;		/* msg->msg_flags */
+		fromlen		: int;		/* size of user buffer */
+	out	nreceived	: size_t;	/* return value */
+	out	from		: sockarg_t;
+		cmsglen		: int;		/* size of user buffer */
+	out	cmsg		: sockarg_t;	/* an array of some size */
+		datalen		: int;		/* size of user buffer */
+	out	data		: small_char_array);
+
+routine bsd_recvmsg_long(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;	/* socket */
+		flags		: int;
+	out	outflags	: int;	/* msg->msg_flags */
+	out	nreceived	: size_t;
+		fromlen		: int;		/* size of user buffer */
+	out	from		: sockarg_t;
+		cmsglen		: int;		/* size of user buffer */
+	out	cmsg		: sockarg_t;	/* an array of some size */
+		datalen		: int;		/* size of user buffer */
+	out	data		: char_array, dealloc);
+
+#if 0
+routine bsd_lseek(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fileno		: int;
+		offset		: int64;
+		sbase		: int;
+	out	ooffset		: int64);
+#else
+skip;
+#endif
+
+#if 0
+routine	bsd_xutimes(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		times		: timeval_3_t;
+		fname		: path_name_t);
+
+routine	bsd_mount(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		ronly		: int;
+		fspec		: path_name_t;
+		freg		: path_name_t);
+
+routine	bsd_umount(
+		proc_port	: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t;
+		fspec		: path_name_t);
+
+#else
+skip;
+skip;
+skip;
+#endif
+
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+skip;
+
+/*
+ * This is routine #99, you cannot go beyond this (Mig limit).
+ * All new routines should be added before this.
+ */
+routine bsd_exec_done(
+	    proc_port		: mach_port_t;
+	msgseqno seqno		: mach_port_seqno_t);
+
+#endif

@@ -1,0 +1,50 @@
+1. In the emulator, why the seperate i386_fork routines?  The semantic of
+   returning 0 in retval[1] for parent and 1 for child is a BSD thing, not
+   an architecture thing.  It is true in 4.4 lite as well as 4.3.  Seems
+   this should be part of the "generic" e_fork routines.
+
+2. In e_bnr_stubs.c:bnr_wait4(), the test for wpid != 0 is unnecesary.
+   wpid is always a pointer to the result array passed in from emul_syscall.
+   Also, since that result array is really 2 ints, treating the pointer to
+   it as a "short *" and doing "*wpid = tmp_wpid" will set the wrong (high)
+   half of the first return register on a big-endian machine.  Should just
+   declare it as an "int *" and do
+	*wpid = tmp_wpid & 0xffff;
+   or
+	*wpid = (u_short) tmp_wpid;
+
+3. In bsd_server_side.c:bsd_osigvec(), the "tramp" argument is passed in to,
+   but not used by, osigvec().  Needed?
+
+4. In e_bsd_stubs.c:e_execve(), should it be passing char_count instead of
+   the page-rounded arg_size to bsd_execve?  Guess it doesn't matter since
+   secure_execve rounds it first thing anyway.
+
+5. In serv_syscalls.c, what is "cmu_binary" in bsd_take_signal and
+   bsd_sigreturn for?  It appears to be unused.
+
+6. In server_exec.c:after_exec(), the various *_count params are said to
+   be OUT but are never set.  Bug?
+
+7. In server_exec.c:secure_execve(), there is a "+80" when computing argv_space.
+   Is this space for the potential cfname/cfargs/fname strings?  If so, why not
+   compute exactly since you have the string lengths available.  Or at the
+   very least: "(3 * PATH_LENGTH) / sizeof(char *)".  If the current 320 bytes
+   (80*sizeof(char *)) proves too small the consequence is trashed argv strings
+   on a downward growing stack or trashed stack frames on an upward growing
+   stack.
+
+8. In emul_exec.c:emul_trap_run(), why the binary type switches?  Why not
+   always call the machine dependent emul_setup() or emul_exec_start() and
+   let them differentiate linux from not-linux.  Or do you envision linux
+   running on other architectures?
+
+9. Should emul_binary_type even be considered machine independent?  While
+   it is conceivable that linux or netbsd will run on something other than
+   a 386, you might still wind up with BT_NETBSD_386 and BT_NETBSD_PA due
+   to other differences (object file formats?)
+
+10.What is the intent of the "mapped_addr = 0x90000000" in
+   emul_exec.c:emul_exec_open().  Simply to avoid conflict with the
+   application's likely address range?  Is there a reason to keep it below
+   EMULATOR_BASE (0xa0000000 on the 386)?  Can you just use MAP_FILE_BASE?

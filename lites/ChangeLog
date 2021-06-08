@@ -1,0 +1,99 @@
+Tue Mar 26 18:13:21 1996  steve clawson  <sclawson@marker.cs.utah.edu>
+
+	* server/serv/disk_io.c (disk_read): If we get a count less than
+	we asked for, then break out of the loop and return 0.  This adds
+	back in the ``temp kludge for tape drives'' that was removed.  
+
+Thu Mar 21 13:02:36 1996  steve clawson  <sclawson@marker.cs.utah.edu>
+
+	* server/i386/conf.c: Added wcd entry into cdevsw[] (major 69) and
+	bdevsw[] (major 19).  
+
+Thu Mar 14 21:29:00 1996  steve clawson  <sclawson@marker.cs.utah.edu>
+
+	* Makefile-version: Changed version to Lites-1.1.u3.
+
+Wed Mar 13 12:42:35 1996  steve clawson  <sclawson@marker.cs.utah.edu>
+
+	* Integrated changes from Jukka Partanen <jtp@cs.hut.fi> and Ian
+	Dall <Ian.Dall@dsto.defence.gov.au>.  
+	
+	Jukka:
+
+	* emulator/i386/e_trampoline.c: Added variable emul_linux_trap
+	which determines if we call the somewhat funky e_linux_setup()
+	(which was for Johannes' patched libc?)  The fallthrough code also
+	knows about linux now.
+
+	* liblites/alpha/ntoh.c: Made ntohl, htonl, htons and ntohs more
+	regular (for little endian of course =).
+	* liblites/mips/ntoh.c: likewise.
+	
+
+	Dall:	
+	
+	* emulator/ns532/e_machinedep.c (e_fork_call): get rid of the asm
+	nops around emul_save_state().
+	* emulator/ns532/e_machinedep.c (take_signals_and_do_sigreturn):
+	likewise.
+	
+	* emulator/ns532/e_machinedep.c (take_a_signal): Save regs 0-7
+ 	into struct sigcontext in the default (BSD) case.  Changed
+ 	reference from sc->sc_psr to sc->sc_ps (struct sigcontext was
+ 	changed to match NetBSD's, where this is different).
+
+	* emulator/ns532/e_machinedep.c (e_bsd_sigreturn): Changed
+	reference from sc->sc_psr to sc->sc_ps.
+
+	* emulator/ns532/emul_vector.s: use save and restore macros(?) to
+	save and restore regs 0-7 instead of doing it by hand.
+
+	* include/ns532/signal.h: Made sigcontext conform to the NetBSD
+	definition.  Added FPE_INVALID_FAULT, FPE_INEXACT_FAULT and
+	FPE_FLG_TRAP.
+
+	* include/sys/signalvar.h: Added SAS_NOTIFY_DONE.  Changed return
+	type of sendsig() to boolean_t.
+
+	* server/kern/kern_sig.c (execsigs): use ffs() instead of
+	find_first_set_bit():
+	* server/kern/kern_sig.c (issignal): likewise.
+
+	* server/kern/kern_sig.c: #define SIGX4 1, add signal_send_running
+	variable (initialized to 0).
+	
+	* server/kern/kern_sig.c (psignal): change #if 0 to #if SIGX4 in
+ 	the section after SIGX3.  Make this code conditional on
+	signal_send_running (since it dies horribly on the PA).
+
+	* server/kern/subr_xxx.c: removed find_first_set_bit().
+
+	* server/ns532/ns532/ns532_exception.c (machine_exception): Add
+ 	subcode handling for fpu traps.  Make sure unix_code doesn`t get
+ 	altered unless machine_exception succeeds.
+
+	* server/serv/select.c (selscan_sub): use ffs() instead of
+	find_first_set_bit().
+
+	* server/serv/sendsig.c (sendsig): Return notified/failed.
+
+	* server/serv/serv_syscalls.c: Got rid of SA_OLDMASK, SIG_CATCH
+ 	and SIG_HOLD #defines.  Use SAS_NOTIFY_DONE flag to indicate that
+ 	the process has already been told there are signals waiting.
+	
+	* server/serv/serv_syscalls.c (send_signal): change return type to
+	boolean_t so that we can return a "task notified" status.
+	* server/serv/serv_syscalls.c (thread_psignal): likewise.
+	* server/serv/serv_syscalls.c (thread_signal): likewise. 
+
+	* server/serv/syscall_subr.c (start_server_op): Rely on
+ 	HAVE_SIGNALS and CURSIG instead of using p_siglist directly.
+	* server/serv/syscall_subr.c (end_server_op): likewise.
+	* server/serv/serv_synch.c (tsleep_main): likewise.
+	* server/serv/serv_syscalls.c (bsd_take_signal): likewise.
+	* server/serv/serv_syscalls.c (thread_signal): likewise. 
+
+	* server/serv/ux_exception.c (catch_exception_raise): return
+ 	unsuccessful status if the exception is handled by the task
+ 	(caught signal).
+	

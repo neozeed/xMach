@@ -1,0 +1,217 @@
+# 
+# Mach Operating System
+# Copyright (c) 1992 Carnegie Mellon University
+# Copyright (c) 1994 Johannes Helander
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON AND JOHANNES HELANDER ALLOW FREE USE OF THIS
+# SOFTWARE IN ITS "AS IS" CONDITION.  CARNEGIE MELLON AND JOHANNES
+# HELANDER DISCLAIM ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+# WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+# HISTORY
+# 28-Sep-94  Ian Dall (dall@hfrd.dsto.gov.au)
+#	Dropped gprof from DEBUG. Debugging and profiling are orthogonal.
+# $Log: MASTER,v $
+# Revision 1.2  2000/10/27 01:58:45  welchd
+#
+# Updated to latest source
+#
+# Revision 1.3  1995/08/15  06:48:51  sclawson
+# modifications from lites-1.1-950808
+#
+# Revision 1.2  1995/03/02  23:29:01  mike
+# move forward a change from the new build environment
+#
+#
+
+#######################################################################
+#
+#	Master machine independent configuration file.
+#
+#	Specific configuration files are created based on this and
+#	the machine specific master file using the doconf script.
+#
+#	Any changes to the master configuration files will affect all
+#	other configuration files based upon it.
+#
+#######################################################################
+#
+#	To build a configuration, execute "doconf <configuration>."
+#	Configurations are specified in the "Configurations:" section
+#	of the MASTER and MASTER.* files as follows:
+#
+#	<configuration> = [ <attribute0> <attribute1> ... <attributeN> ]
+#
+#	Lines in the MASTER and MASTER.* files are selected based on
+#	the attribute selector list, found in a comment at the end of
+#	the line.  This is a list of attributes separated by commas.
+#	The "!" operator selects the line if none of the attributes are
+#	specified.
+#
+#	For example:
+#
+#	<foo,bar>	selects a line if "foo" or "bar" are specified.
+#	<!foo,bar>	selects a line if neither "foo" nor "bar" is
+#			specified.
+#
+#	Lines with no attributes specified are selected for all
+#	configurations.
+#
+#######################################################################
+#
+#
+#  Standard Configuration Components:
+#  -------- ------------- ----------
+#
+#  Options that must always be there
+#  SERVER    = [ lites mtime muarea file_ports vnpager ]
+#
+#  Minimal configuration
+#  BOOT      = [ SERVER inet ffs ]
+#
+#  Standard configuration
+#  STD       = [ SERVER inet ffs second_server syscalltrace compat_43 compat_oldsock kernfs nfs ]
+#
+#  Everything that is known to work
+#  LARGE     = [ STD ]
+#
+#  DEBUG     = [ debug machid_register lineno diagnostic assertions queue_assertions mutex_holder_assert ]
+#
+#  Compiles but untested.
+#  UNTESTED     = [ mfs umapfs union fdesc cd9660 portal lfs sl ns nsip lfs quota gateway mrouting ]
+#
+#  Unimplemented or does not compile.
+#  ALMOST    = [ ccitt hdlc iso tpip eon ]
+#  NOTYET    = [ llc atsys procfs sysvshm ]
+#
+# Move options from NOTYET to ALMOST to UNTESTED to LARGE as work progresses.
+##############################################################################
+#
+ident		CMU
+
+options		LITES		# <lites>
+options		MACH		# <lites>
+
+# Server
+options		MAP_UAREA	# <muarea>
+options		SECOND_SERVER	# <second_server>
+options		MACHID_REGISTER	# <machid_register>
+options		VNPAGER		# <vnpager>
+options		FILE_PORTS	# <file_ports>
+options		MAP_ETHER	# Use mapped ethernet		# <map_ether>
+options		MAP_TIME	# Use mapped time from kernel	# <mtime>
+options		NAMEI_MACROS	# <atsys>
+options		DATA_SYNCH	# <data_synch>
+
+# Experimnetal features
+options		ETHER_AS_SYSCALL # No net thread or ISR	# <ether_as_syscall>
+options		MAP_PIPE	# Shared memory unp sockets	# <map_pipe>
+
+# Debugging
+options		OPT_DEBUG	# <debug>
+options		DIAGNOSTIC	# <diagnostic>
+options		SYSCALLTRACE	# <syscalltrace>
+options		ASSERTIONS	# <assertions>
+options		QUEUE_ASSERTIONS	# Check queues	# <queue_assertions>
+options		MUTEX_HOLDER_ASSERT	# <mutex_holder_assert>
+
+# Compat
+options		COMPAT_42	# <compat_42>
+options		COMPAT_43	# <compat_43>
+options		COMPAT_OLDSOCK	# <compat_oldsock>
+options		MACH4_INCLUDES	# <mach4_includes>
+
+# Networking
+options		INET		# Internet Protocol		# <inet>
+options		MROUTING	# Multicast routing		# <mrouting>
+options		TCP_COMPAT_42   	# <tcp_compat_42>
+options		ISO		# OSI				# <iso>
+options		TPIP			# <tpip>
+options		NS			# <ns>
+options		NSIP		# XNS over IP			# <nsip>
+options		CCITT		# X25 etc			# <ccitt>
+options		GATEWAY			# <gateway>
+options		EON		# ISO over IP			# <eon>
+options		LLC			# <llc>
+options		HDLC			# <hdlc>
+
+# File systems
+options		FFS		# Fast file system		# <ffs>
+options		LFS		# Log file system		# <lfs>
+options		MFS		# Memory file system		# <mfs>
+options		NFS		# Network File System		# <nfs>
+options		FDESC		# File descriptor File System	# <fdesc>
+options		PORTAL		# File System			# <portal>
+options		NULLFS		# Null File System		# <nullfs>
+options		UMAPFS		# File System			# <umapfs>
+options		KERNFS		# Kernel File System		# <kernfs>
+options		PROCFS		# Process File System		# <procfs>
+options		AFS		# Andrew File System		# <afs>
+options		CD9660		# ISO File System		# <cd9660>
+options		UNION		# Union File System		# <union>
+options		FIFO		# 				# <fifo>
+options		EXT2FS		# Linux File System		# <ext2fs>
+options		MINIXFS		# Linux Minix File System	# <minixfs>
+options  	DEVFS           # Device File System            # <devfs>
+
+
+# Misc
+options		SYSVSHM		# <sysvshm>
+options		QUOTA		# <quota>
+
+# See if these are anything useful.
+options		GENERIC		# <!bsmall>
+options		TRACE		# <trace>
+options		KTRACE		# <ktrace>
+options		RMP		# <rmp>
+options		KMEMSTATS	# <kmemstats>
+
+options		NOOPT		# <noopt>
+profile				# build for profiling		# <gprof>
+
+makevariables	LINENO="-g"					# <lineno>
+makevariables	MASTER_DEFINES="-DMACH_IPC_COMPAT=0"
+makevariables	CC_OPT_EXTRA="-g -Dregister= -O0"		# <noopt>
+#
+#  Ethernet (ARP)
+#
+pseudo-device	ether
+#
+#   SL-IP
+#
+pseudo-device	sl			# <sl>
+#
+#   PPP
+#
+pseudo-device	ppp	4		# <ppp>
+#
+#  Network loopback device
+#
+# Always: pseudo-device	loop
+#
+# Packet filter
+#
+pseudo-device	bpfilter		# <bpfilter>
+
+#
+# Number of communication ttys:
+#
+pseudo-device	com	4
+#
+#  UCB pseudo terminal service
+#
+pseudo-device	pty	80			# <!bsmall>
+pseudo-device	netthreads	2
+pseudo-device	mbclusters	256
+
+pseudo-device	vnodepager	1
+
+pseudo-device	log
+pseudo-device	hy		0

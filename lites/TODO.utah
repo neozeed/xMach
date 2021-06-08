@@ -1,0 +1,56 @@
+Things we need to do to get Lites on the desktop:
+
+1. Get signals working correctly in the migrating threads world [KERNEL/LITES].
+   There are still big problems with thread control (e.g. thread_abort).
+   Either we need to get these backward-compatible calls working or we
+   need to implement signals in the new way.
+
+2. Debugging support [LITES/KERNEL].
+   We need a ptrace or /proc interface so basic interactive debugging
+   can be done.  Actually it looks like we are going the HUT "native" gdb.
+   This requires #1 to work.
+
+3. Core dumps or core dump daemon [LITES].
+   For debugging.
+
+4. Get ktrace/kdump working [LITES].
+   Another useful debugging tool.  In the presense of the emulator this
+   becomes harder and possibly less meaningful (e.g. if a syscall is handled
+   entirely in the emulator).
+
+5. An X-server [LITES/KERNEL].
+   We need HP-UX support and the grf/hil drivers will need to be hacked
+   into the HP-UX read interface style.
+
+6. Reintegrate basic PA server performance hacks in Lites [LITES].
+   The only one that comes to mind off-hand is the alignment of the shared
+   memory pages so that pmap aliasing can be used.
+
+7. Emacs [USER]
+
+8. Space queue setting [KERNEL/LITES].
+   Need to be able to set the space queue in thread_set_state for our
+   signal handling code to work right (e.g. we get a signal as the result
+   of branching to a bad space).
+
+9. Sync Lites with 4.4bsd-lite-2 or current CSRG [LITES].
+   This is going to be an enormous task.  Filesystem code update is the
+   most important part.
+
+Minor bugs:
+
+1. sed dies occasionally with "Unknown error: 49165" in mike's .cshrc
+
+2. csh still occasionally dies for some (the same?) reason
+
+3. Unable to mount filesystems from the command line.
+
+4. Unable to set the time.
+
+5. GNU related stuff:
+
+   a. Tools need a lites configuration (binutils).
+
+   b. param vs machparam.
+
+   c. ld depends on gnu-make

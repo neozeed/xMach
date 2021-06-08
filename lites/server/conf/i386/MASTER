@@ -1,0 +1,85 @@
+# 
+# Mach Operating System
+# Copyright (c) 1992 Carnegie Mellon University
+# Copyright (c) 1994 Johannes Helander
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON AND JOHANNES HELANDER ALLOW FREE USE OF THIS
+# SOFTWARE IN ITS "AS IS" CONDITION.  CARNEGIE MELLON AND JOHANNES
+# HELANDER DISCLAIM ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+# WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+# HISTORY
+# $Log: MASTER,v $
+# Revision 1.2  2000/10/27 01:58:45  welchd
+#
+# Updated to latest source
+#
+# Revision 1.1.1.1  1995/03/02  21:49:41  mike
+# Initial Lites release from hut.fi
+#
+#
+
+#
+#  Master i386 configuration file (see the master machine independent
+#  configuration file for a description of the file format).
+#
+#
+#  i386 (PSEUDO-)DEVICES (select any combination)
+#
+#	du   = CSNET DialupIP interface (software)
+#
+#  CPU TYPE (select exactly one)
+#
+#	i386    = any VAX CPU
+#
+#
+#  Production Configuration Components:
+#  ---------- ------------- ----------
+#
+#  ANY   =[du i386 ]
+#  MF    =[du i386 ]
+#  MP    =[du i386 ]
+#  WS    =[   i386 iopl com ]
+#  STDAFS=[ ]
+#  STD   =[ ]
+#
+#  (any i386 cpu model)
+#
+#  EXTRA =[ ]
+#
+#  ("one-of-a-kind" devices)
+#
+#  Options which are almost always turned on when mach is turned on,
+#  but can still be individually selected:
+#
+#  MSTD  = [ ]
+#
+#
+conftype	"i386"						# <i386>
+platform	"AT386"		# Only for show			# <i386>
+
+options		COMPAT		# <compat>
+
+#
+#  CMU/SU packet filter
+#
+pseudo-device	enet			# <en>
+
+#
+#   dialupIP
+#
+pseudo-device	du	2		# <du>
+
+#
+# Support for X11.
+#
+pseudo-device	iopl	1		# <iopl>
+pseudo-device	mouse	1		# <iopl>
+pseudo-device	kbd	1		# <iopl>

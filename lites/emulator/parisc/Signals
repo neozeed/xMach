@@ -1,0 +1,52 @@
+Scenerios
+
+I. User executing, takes exception.
+   If in server, see II.  Otherwise signal is delivered via signal_notify
+   message from server to emulator signal thread.  Signal thread does a
+   thread_abort, retrieves the state and tweaks the target thread to begin
+   execution in an emulator routine with the original state.  That routine
+   (e_signal.c:e_i_got_a_signal) repeatedly calls take_a_signal until no
+   more signals.  take_a_signal sets sc_ap to denote this is really a signal
+   (not a longjmp).
+
+	A. handler returns
+		Ok.  We fall back into take_a_signal, restore the correct
+		DP and state from sigcontext and return.  e_i_got_a_signal
+		does the magic longjmp.
+	B. handler longjmps
+		Ok.  Longjmp calls sigreturn...
+	C. handler sigreturns
+		Ok.  Calls e_machinedep.c:e_sigreturn which will restore
+		state as indicated from sc_ap and sigcontext and perfroms
+		the magic longjmp back to user execution.  Potential problem
+		is that we don't fall out of e_sigreturn and hence won't
+		pick up any other signals immmediately.
+
+II. User executing server syscall.
+    Signal will be left for emulator to discover.  On return, emul_syscall
+    calls e_checksignals and calls take_signals_and_do_sigreturn.  It will
+    call emul_save_state() to establish a basic context and loop calling
+    take_a_signal with that until no more signals.
+
+	A. handler returns
+		Ok.  We fall back into take_a_signal, restore the correct
+		DP and state from sigcontext and return.  t_s_a_d_s() calls
+		emul_load_state.  If user has changed the sigcontext PC,
+		this returns directly to user, otherwise it returns to itself
+		(non-zero return to emul_save_state) and just falls out of
+		the emulator.
+	B. handler longjmps
+		Ok.  Longjmp calls sigreturn...
+	C. handler sigreturns
+		Same as I above.
+
+III. User executing Mach syscall.
+	A. handler returns
+	B. handler sigreturns
+	C. handler longjmps
+
+IV. Other server delivered signals?
+
+V. User executing in emulator, takes exception.
+
+VI. Longjmp() from non-signal handler does sigreturn.

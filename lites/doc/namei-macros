@@ -1,0 +1,44 @@
+From: Johannes Helander <jvh@cs.hut.fi>
+To: lites@cs.hut.fi
+Subject: Namei macros added
+Date: Thu, 17 Nov 1994 03:33:19 +0200
+
+I added the following namei expansions together with Juki <jtv@hut.fi>
+
+@sys	expands to i386_lites, mips_lites, etc. per system basis
+@cpu	expands to i386, mips, ns532, ...
+@host	expands to the host name.
+@bin	expands like @sys but per binary basis depending on what kind
+	of a binary is being executed.  The strings are
+	i386_linux, i386_freebsd, i386_netnsd, i386_ux, mips_ultrix,
+	etc.  (Comments about the name choices are welcome: see
+	exec_file.h)
+
+The macros are expanded by namei.  A path component must be the
+literal string (the macro must occupy an entire path component).
+Symlinks may contain namei macros.
+
+The idea is to make it easier to have several sets of binaries on the
+same machine and to make switching between OSs easier.  For example
+FreeBSD and NetBSD use the same names and paths for shared libraries.
+However, they are not compatible with each other.  @bin may be used to
+distinguish (make a symlink containing @bin).
+
+Another otherwise hard case is device numbers.  Now you may have two
+/dev directories and choose on runtime.  Create /@sys in Linux, and
+move dev there.  ln -s /@sys/dev /dev.  Create /i386_lites/dev and
+create the suitable devices there.  Now both Lites and Linux will work
+(in this respect).
+
+@host and @cpu might be nice sometimes so they got added too.  But
+more than that I think is too much so now @uid, @pid, @date, or
+was added.
+
+I didn't make it default yet. Build with +atsys for now.  That can be
+done from configure by giving the option --with-config=STD+WS+atsys
+
+
+A diff and new snapshot are available in the usual place.
+
+	Johannes
+

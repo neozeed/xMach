@@ -1,0 +1,8 @@
+#undef KERNEL
+#define signal_notify dummy_signal_notify
+
+/* These defines are XXX with MK83. They just eliminate some cpp warnings */
+#define KERNEL_SERVER 0
+#define MACH_IPC_COMPAT 0
+
+#include <serv/signal.defs>

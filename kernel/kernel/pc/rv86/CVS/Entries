@@ -1,0 +1,8 @@
+/config.h/1.1.1.1/Sat May  6 21:39:56 2000//
+/idt_irq_init.c/1.1.1.1/Sat May  6 21:39:56 2000//
+/rv86_real_int.c/1.1.1.1/Sat May  6 21:39:56 2000//
+/rv86_real_int_asm.S/1.1.1.1/Sat May  6 21:39:56 2000//
+/rv86_reflect_irq.S/1.1.1.1/Sat May  6 21:39:56 2000//
+/rv86_trap_handler.S/1.1.1.1/Sat May  6 21:39:56 2000//
+/trap_handler.S/1.1.1.1/Sat May  6 21:39:56 2000//
+D

@@ -1,0 +1,7 @@
+#undef KERNEL
+
+/* These defines are XXX with MK83. They just eliminate some cpp warnings */
+#define KERNEL_SERVER 0
+#define MACH_IPC_COMPAT 0
+
+#include <serv/bsd_1.defs>

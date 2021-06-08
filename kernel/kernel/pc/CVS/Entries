@@ -1,0 +1,20 @@
+/Makerules/1.1.1.1/Sat May  6 21:39:55 2000//
+/NOTES/1.1.1.1/Sat May  6 21:39:55 2000//
+/debug.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/exit.c/1.1.1.1/Sat May  6 21:39:55 2000//
+/gdt.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/gdt_sels.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/ipl.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/irq.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/irq_list.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/pc_asm.sym/1.1.1.1/Sat May  6 21:39:55 2000//
+/phys_mem.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/phys_mem_add.c/1.1.1.1/Sat May  6 21:39:55 2000//
+/pic.c/1.1.1.1/Sat May  6 21:39:55 2000//
+/pic.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/putchar.c/1.1.1.1/Sat May  6 21:39:55 2000//
+/real.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/real_tss.c/1.1.1.1/Sat May  6 21:39:55 2000//
+/real_tss.h/1.1.1.1/Sat May  6 21:39:55 2000//
+/real_tss_def.S/1.1.1.1/Sat May  6 21:39:55 2000//
+D

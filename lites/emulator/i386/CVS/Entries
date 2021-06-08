@@ -1,0 +1,12 @@
+/e_cmu_43ux_sysent.c/1.2/Fri Oct 27 01:55:28 2000//
+/e_exception.c/1.2/Fri Oct 27 01:55:28 2000//
+/e_isc4_sysent.c/1.2/Fri Oct 27 01:55:28 2000//
+/e_linux_sysent.c/1.4/Sun Nov 26 01:35:55 2000//
+/e_linux_trampoline.c/1.4/Sun Nov 26 01:35:55 2000//
+/e_machinedep.c/1.2/Fri Oct 27 01:55:28 2000//
+/e_signal.c/1.2/Fri Oct 27 01:55:28 2000//
+/e_trampoline.c/1.4/Sun Nov 26 01:35:55 2000//
+/ecrt0.c/1.2/Fri Oct 27 01:55:28 2000//
+/emul_misc_asm.s/1.2/Fri Oct 27 01:55:28 2000//
+/emul_vector.s/1.2/Fri Oct 27 01:55:28 2000//
+D

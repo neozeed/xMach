@@ -1,0 +1,74 @@
+# 
+# Mach Operating System
+# Copyright (c) 1992 Carnegie Mellon University
+# Copyright (c) 1994 Johannes Helander
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON AND JOHANNES HELANDER ALLOW FREE USE OF THIS
+# SOFTWARE IN ITS "AS IS" CONDITION.  CARNEGIE MELLON AND JOHANNES
+# HELANDER DISCLAIM ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+# WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+# Created from server/conf/i386/MASTER
+
+#
+#  Master parisc configuration file (see the master machine independent
+#  configuration file for a description of the file format).
+#
+#
+#  parisc (PSEUDO-)DEVICES (select any combination)
+#
+#	du   = CSNET DialupIP interface (software)
+#
+#  CPU TYPE (select exactly one)
+#
+#	parisc    = any VAX CPU
+#
+#
+#  Production Configuration Components:
+#  ---------- ------------- ----------
+#
+#  ANY   =[ parisc ]
+#  MF    =[ parisc ]
+#  MP    =[ parisc ]
+#  WS    =[ parisc grf hil ]
+#  STDAFS=[ ]
+#  STD   =[ ]
+#
+#  (any parisc cpu model)
+#
+#  EXTRA =[ ]
+#
+#  ("one-of-a-kind" devices)
+#
+#  Options which are almost always turned on when mach is turned on,
+#  but can still be individually selected:
+#
+#  MSTD  = [ ]
+#  ACT   = [ act ]
+#  NRPC  = [ act nrpc ]
+#
+#
+conftype	"parisc"					# <parisc>
+platform	"PARISC"		# Only for show		# <parisc>
+
+options		COMPAT		# <compat>
+options		USEACTIVATIONS	# <act>
+options		USENRPC		# <nrpc>
+
+#
+#  CMU/SU packet filter
+#
+pseudo-device	enet			# <en>
+
+#
+# Support for X11.
+#
+pseudo-device	grf	1		# <grf>
+pseudo-device	hil	1		# <hil>

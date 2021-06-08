@@ -1,0 +1,198 @@
+dnl
+dnl Mach Operating System
+dnl Copyright (c) 1994 Johannes Helander
+dnl Copyright (c) 1994, The University of Utah and
+dnl the Computer Systems Laboratory at the University of Utah (CSL).
+dnl All Rights Reserved.
+dnl 
+dnl Permission to use, copy, modify and distribute this software and its
+dnl documentation is hereby granted, provided that both the copyright
+dnl notice and this permission notice appear in all copies of the
+dnl software, derivative works or modified versions, and any portions
+dnl thereof, and that both notices appear in supporting documentation.
+dnl 
+dnl JOHANNES HELANDER AND THE UNIVERSITY OF UTAH AND CSL ALLOWS FREE
+dnl USE OF THIS SOFTWARE IN ITS "AS IS" CONDITION.  JOHANNES HELANDER
+dnl AND THE UNIVERSITY OF UTAH AND CSL DISCLAIMS ANY LIABILITY OF ANY
+dnl KIND FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS
+dnl SOFTWARE.
+dnl 
+dnl
+dnl	Authors:
+dnl	Bryan Ford, University of Utah CSS
+dnl	Johannes Helander, Helsinki University of Technology
+dnl
+dnl
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(server/serv/mapped_timezone.c)
+
+AC_CONFIG_AUX_DIR(conf)
+
+# Find the primary build tools we'll be using.
+AC_PROG_CC
+AC_PROG_CPP
+LD="ld"
+AC_SUBST(LD)
+AR="ar"
+AC_SUBST(STRIP)
+STRIP="strip"
+AC_SUBST(AR)
+AC_PROG_RANLIB
+SIZE="size"
+AC_SUBST(SIZE)
+
+PREVCC=$CC
+CC="$CC -pipe"
+
+AC_TRY_COMPILE([], [return 0;],
+	[test -n "$verbose" && echo "build compiler understands -pipe option"],
+	[CC=$PREVCC
+	test -n "$verbose" && echo "build compiler does not understand -pipe option"])
+
+# gcc needs -x c with -E to preprocess files with arbitrary suffixes
+if test -n "$GCC"; then
+	CPP="$CPP -x c"
+	AC_MSG_RESULT(CPP reset to $CPP)
+fi
+
+BUILD_CC=$CC
+AC_SUBST(BUILD_CC)
+BUILD_CPP=$CPP
+AC_SUBST(BUILD_CPP)
+
+# Other miscellaneous things we need.
+AC_PROG_AWK
+AC_PROG_INSTALL
+
+# Autoconf 2.0 doesn't set top_objdir automatically; set top_objdir.
+top_objdir=`pwd`
+AC_SUBST(top_objdir)
+
+# XXX try our best to make things work when a srcdir isn't specified.
+srcdir=`cd $srcdir; pwd`
+
+# If the user didn't specify a host name, guess it.
+if test "$host" = "NONE"; then
+	host=`$srcdir/conf/config.guess` || (AC_ERROR(Unable to guess system type))
+fi
+
+if test "$target" = "NONE"; then
+	target=$host
+fi
+
+# Figure out what tools we're going to use to compile stuff for the host machine.
+if test "$target" = "$host"; then
+
+	# If we're not cross-compiling, make sure we have GCC.
+	# Mach won't compile with just any ol' C compiler...
+	if test -z "$GCC"; then
+		AC_ERROR(You need GCC to compile Lites.)
+	fi
+else
+	# If we _are_ cross-compiling, just assume they're there.
+	# Note that these can still be overridden on the make command line;
+	# that's what I understand you're normally supposed to do.
+	#
+	# Be careful not to change the CC variable
+	# until after we're all done with ac_xxx things
+	# that might need to run the C compiler.
+	CC="$target-gcc"
+	PREVCC=$CC
+	CC="$CC -pipe"
+
+	AC_TRY_COMPILE([], [return 0;],
+	[test -n "$verbose" && echo "target compiler understands -pipe option"],
+	[CC=$PREVCC
+	test -n "$verbose" && echo "target compiler does not understand -pipe option"])
+
+
+	CPP="$target-gcc -x c -E"
+	AC_SUBST(CPP)
+	LD="$target-ld"
+	STRIP="$target-strip"
+	AR="$target-ar"
+	RANLIB="$target-ranlib"
+	SIZE="$target-size"
+fi
+
+# Figure out the host machine name from the full host system name.
+target_machine=`echo $target | sed -e 's/-.*$//'`
+case "$target_machine" in
+i[[45]]86) 		target_machine="i386" ;;
+pc532)		target_machine="ns532" ;;
+pmax)		target_machine="mips" ;;
+hppa*)		target_machine="parisc" ;;
+esac
+AC_SUBST(target_machine)
+
+LITES_CONFIG=$with_config
+if test -z "$LITES_CONFIG"; then
+	LITES_CONFIG="STD+WS"
+fi
+# enable_mach4 makes the build Mach4 specific
+if test "$enable_mach4" = "yes"; then
+	LITES_CONFIG="$LITES_CONFIG+mach4"
+fi
+# If the user specified --enable-debug, add +DEBUG to the config list.
+if test "$enable_debug" = "yes"; then
+	LITES_CONFIG="$LITES_CONFIG+DEBUG"
+fi
+# If the user specified --enable-slice, add +slice to the config list.
+if test "$enable_slice" = "yes"; then
+	LITES_CONFIG="$LITES_CONFIG+slice"
+fi
+AC_SUBST(LITES_CONFIG)
+AC_MSG_RESULT(setting LITES_CONFIG to $LITES_CONFIG)
+
+# --enable-profiling affects compiler flags and the library selection
+if test "$enable_profiling" = "yes"; then
+	PROFILING="yes"
+else
+	PROFILING="no"
+fi
+AC_SUBST(PROFILING)
+AC_MSG_RESULT(setting PROFILING to \"$PROFILING\")
+
+# If --with-release was specified, use the argument to find a Mach release
+# including headers and libraries etc.
+MACH_RELEASE_DIR=$with_release
+AC_SUBST(MACH_RELEASE_DIR)
+
+gnu_ld2=`$LD -v 2> /dev/null | $AWK '/^ld version (cygnus-)?2\./ {print "yes"}'`
+if test X"$gnu_ld2" = X"yes"; then
+	AC_DEFINE(GNU_LD2)
+	AC_MSG_RESULT(setting GNU_LD2 to \"yes\")
+fi
+
+# Run the server configuration script.
+if test -d server; then
+	true;
+else
+	mkdir -p server conf || exit
+fi
+(
+	cd server && \
+	$CPP -P -undef -nostdinc -I$srcdir -DCONFIG=$LITES_CONFIG $srcdir/conf/$target_machine/MASTER | /bin/sh $srcdir/conf/doconfig.sh $srcdir/conf/move-if-change && \
+	/bin/sh Doopt.sh \
+)
+
+# Find the set of directories that have Makefile.in's in them.
+mach_makefiles=`cd $srcdir; find * -name Makefile.in -print|sort|sed 's%.in$%%g'`
+mach_subdirs=`echo $mach_makefiles|sed 's%/*Makefile%%g'`
+AC_SUBST(mach_subdirs)
+export mach_makefiles
+
+AC_OUTPUT($mach_makefiles conf/Makeconf)
+
+
+
+
+
+
+
+
+
+
+
+

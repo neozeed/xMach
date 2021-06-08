@@ -1,0 +1,44 @@
+Installing Lites on a FreeBSD machine -- jvh 941204
+
+- Install FreeBSD 2.0 on the machine
+- Install the Mach bootable kernel in the root directory (e.g. /mach.boot)
+- Create a /mach_servers directory
+- Populate with startup, emulator, mach_init
+- Create a paging file. Let's assume /usr has space and is on /dev/sd0g
+  dd if=/dev/zero of=/usr/PAGING_FILE bs=1024k count=60
+  ln -s /dev/sd0g/PAGING_FILE /mach_servers/paging_file
+  chmod 0 /usr/paging_file
+- Create devices for mapped time (semioptional).  
+  cd /dev
+  mknod time c 25 0
+  mknod timezone c 26 0
+- Create devices for Mach version of XFree (optional but for that X server)
+  mknod iopl c 22 0
+  mknod kbd c 23 0
+  mknod mouse c 24 0
+NOTE: The device numbers are likely to change in the future.
+- Change network interface name to what the Mach kernel thinks
+  mv /etc/hostname.ed0 /etc/hostname.wd0
+OR copy the file to both names. This way both Lites and FreeBSD will
+boot ok. but you will see some error messages.
+- There isn't VT support in Lites yet so you need to run getty on the
+console.  Either edit /etc/ttys or kludge /dev
+  mv ttyv0 ttyv0.freebsd
+  ln console ttyv0
+- Remove the multicast add route command from /etc/netstart.  It does
+not work on Lites (yet).
+- Currently the bootstrap loader program is incompatible.  One way is
+to put the Mach boot program on a floppy and use that.
+  dd if=pcboot.MK83 of=/dev/rfd0 conv=sync
+Then in the floppy boot> prompt you type
+  boot> sd(0)/mach.boot
+or hd(0)/mach.boot in case you are using IDE/MFM/ESDI...
+
+A few programs will fail when booted with Lites.  The following are
+expected: swapon, savecore, getty on VTs, procfs_mount
+
+The following programs need to be replaced by Lites versions: ps, top,
+w.
+
+
+

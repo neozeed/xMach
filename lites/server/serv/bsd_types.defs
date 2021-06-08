@@ -1,0 +1,73 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1992 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon 
+ * the rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log: bsd_types.defs,v $
+ * Revision 1.2  2000/10/27 01:58:49  welchd
+ *
+ * Updated to latest source
+ *
+# Revision 1.2  1995/08/15  06:49:30  sclawson
+# modifications from lites-1.1-950808
+#
+# Revision 1.1.1.2  1995/03/23  01:17:02  law
+# lites-950323 from jvh.
+#
+ * Revision 2.1  92/04/21  17:10:49  rwd
+ * BSDSS
+ * 
+ *
+ */
+
+/*
+ * Types for BSD kernel interface.
+ */
+
+#include <mach/std_types.defs>
+#include <mach/mach_types.defs>
+#include <bsd_types_gen.h>
+
+type	small_char_array= array[*:SMALL_ARRAY_LIMIT] of char;
+type	char_array	= ^array[] of char;
+type	path_name_t	= array[*:PATH_LENGTH] of char;
+type	timeval_t	= struct[2] of int;
+type	timeval_2_t	= array[2] of timeval_t;
+type	timeval_3_t	= array[3] of timeval_t;
+type	rusage_t	= struct[RUSAGE_SIZE] of int;
+type	sockarg_t	= array[*:128] of char;
+type	fd_set		= struct[FD_SET_LIMIT] of int;
+type	gidset_t	= array[GROUPS_LIMIT] of int;
+type	rlimit_t	= array[4] of int;
+type	sigaction_t	= struct[SIGACTION_SIZE] of int;
+type	sigstack_t	= struct[SIGSTACK_SIZE] of int;
+type	timezone_t	= struct[2] of int;
+type	itimerval_t	= struct[4] of int;
+type	vattr_t		= struct[VATTR_SIZE] of int;
+type	sigset_t	= integer_t;
+type	size_t		= natural_t;
+type	mib_t		= array[*:CTL_MAXNAME] of int;
+
+import <serv/bsd_types.h>;

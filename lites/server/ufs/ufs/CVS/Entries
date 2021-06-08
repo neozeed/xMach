@@ -1,0 +1,18 @@
+/dinode.h/1.1.1.1/Sat May  6 20:55:56 2000//
+/dir.h/1.1.1.1/Sat May  6 20:55:56 2000//
+/inode.h/1.1.1.1/Sat May  6 20:55:56 2000//
+/lockf.h/1.1.1.1/Sat May  6 20:55:56 2000//
+/quota.h/1.1.1.1/Sat May  6 20:55:56 2000//
+/ufs_bmap.c/1.1.1.1/Sat May  6 20:55:57 2000//
+/ufs_disksubr.c/1.1.1.1/Sat May  6 20:55:57 2000//
+/ufs_extern.h/1.1.1.1/Sat May  6 20:55:57 2000//
+/ufs_ihash.c/1.1.1.1/Sat May  6 20:55:57 2000//
+/ufs_inode.c/1.1.1.1/Sat May  6 20:55:57 2000//
+/ufs_lockf.c/1.1.1.1/Sat May  6 20:55:58 2000//
+/ufs_lookup.c/1.1.1.1/Sat May  6 20:55:58 2000//
+/ufs_quota.c/1.1.1.1/Sat May  6 20:55:59 2000//
+/ufs_readwrite.c/1.1.1.1/Sat May  6 20:55:59 2000//
+/ufs_vfsops.c/1.1.1.1/Sat May  6 20:55:59 2000//
+/ufs_vnops.c/1.1.1.1/Sat May  6 20:56:00 2000//
+/ufsmount.h/1.1.1.1/Sat May  6 20:56:00 2000//
+D

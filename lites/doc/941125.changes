@@ -1,0 +1,29 @@
+From: Johannes Helander <jvh@cs.hut.fi>
+To: lites
+Subject: New snapshot
+FCC: /usr1/users/jvh/Mail/OUT
+Organization: Helsinki University of Technology, CS Lab.
+--text follows this line--
+LITES.941125.tar.gz is available from leia:foggy/lites
+
+* Many 64 bit fixes from Juki.
+* ioctl cmds are now ioctl_cmd_t instead of int.  This affects among
+  other things conf.c files.
+* Lites is now compiled with -W and produces less noice than before
+  without any options.
+* Boots multiuser on NetBSD 1.0
+* Explicit memory object syncing is not done for now as it was too
+  slow.  An optimized version should be added later.
+* Several bugfixes here and there.
+* The emulator can now be used as a "shell interpreter" for running
+  other binaries. For example ./emulator.test /usr/bin/emacs -d han:0
+  runs emacs with emulator.test as the emulator.  (The emulator is not
+  inherited, the default is used if not explicitely specified).
+* stdargs should be used instead of varargs.  In most cases this is
+  already true.
+* extern inlines are now called __INLINE__.  This is normally extern
+  inline but may be overridden.  The intention is that one file
+  defines __INLINE__ as empty and gets global entry points for out of
+  line versions of the routines.
+
+	Johannes

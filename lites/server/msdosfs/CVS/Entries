@@ -1,0 +1,14 @@
+/bootsect.h/1.2/Fri Oct 27 01:58:47 2000//
+/bpb.h/1.2/Fri Oct 27 01:58:47 2000//
+/denode.h/1.2/Fri Oct 27 01:58:47 2000//
+/direntry.h/1.2/Fri Oct 27 01:58:47 2000//
+/fat.h/1.2/Fri Oct 27 01:58:47 2000//
+/lites-comp.h/1.1.1.1/Sat May  6 20:54:32 2000//
+/msdosfs_conv.c/1.2/Fri Oct 27 01:58:47 2000//
+/msdosfs_denode.c/1.2/Fri Oct 27 01:58:47 2000//
+/msdosfs_fat.c/1.2/Fri Oct 27 01:58:47 2000//
+/msdosfs_lookup.c/1.2/Fri Oct 27 01:58:47 2000//
+/msdosfs_vfsops.c/1.2/Fri Oct 27 01:58:47 2000//
+/msdosfs_vnops.c/1.2/Fri Oct 27 01:58:47 2000//
+/msdosfsmount.h/1.2/Fri Oct 27 01:58:47 2000//
+D

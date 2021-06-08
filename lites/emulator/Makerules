@@ -1,0 +1,105 @@
+# 
+# Mach Operating System
+# Copyright (c) 1994 Johannes Helander
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# JOHANNES HELANDER ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  JOHANNES HELANDER DISCLAIMS ANY LIABILITY OF ANY KIND
+# FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+#
+# HISTORY
+# $Log: Makerules,v $
+# Revision 1.2  2000/10/27 01:55:27  welchd
+#
+# Updated to latest source
+#
+# Revision 1.3  1995/09/01  23:24:23  mike
+# hack: add Nbsd_1_user.c new rpc user stubs.
+# When flick replaces mig, this will go away.
+#
+# Revision 1.2  1995/08/21  22:38:23  mike
+# Temporary: new flick stubs
+#
+# Revision 1.1.1.2  1995/03/23  01:15:33  law
+# lites-950323 from jvh.
+#
+#
+
+include $(SRCDIR)/Makefile-version
+
+SECTIONS = emulator emulator/$(TARGET_MACHINE)
+
+DEFINES += -DEMULATOR -DNFS -DCOMPAT_43 -DMAP_UAREA -DASYNCH_SIGNALS
+INCDIRS += ${SRCDIR}/emulator ../server
+LIBS = -llites -lthreads -lmach_sa ${TARGET_LIBS} ${LIBGCC}
+### XXX OSF
+ifdef OSF_ENVIRONMENT
+LIBS = -llites -lcthreadsZ -lmachZ -lsa_machZ ${TARGET_LIBS} ${LIBGCC}
+LIBDEPS = ../liblites/liblites.a
+endif
+
+TARGET_CFLAGS	+= -g ${EMUL_TARGET_CFLAGS}
+HOST_CFLAGS += ${EMUL_HOST_CFLAGS}
+
+i386_OFILES = e_linux.o e_sysv.o e_exception.o e_signal.o e_machinedep.o \
+	e_linux_trampoline.o \
+	e_linux_sysent.o e_isc4_sysent.o e_cmu_43ux_sysent.o
+parisc_OFILES = e_exception.o e_machinedep.o e_signal.o e_hpbsd.o \
+	e_hpbsd_sysent.o e_hpux.o e_hpux_sysent.o Nbsd_1_user.o
+ns532_OFILES = e_exception.o e_machinedep.o e_signal.o \
+	e_cmu_43ux_sysent.o
+mips_OFILES = e_ultrix.o e_ultrix_sysent.o
+alpha_OFILES = e_osf1_sysent.o e_osf1.o
+
+OBJFILES = ecrt0.o  e_mig_support.o emul_generic.o error_codes.o \
+	emul_init.o emul_mapped.o emul_misc_asm.o \
+	e_bsd.o e_43ux.o bsd_1_user.o emul_mach_interface_user.o \
+	e_mach_msg_server.o e_stat.o e_bnr.o emul_exec.o \
+	signal_server.o e_uname.o e_mapped_time.o e_sysvipc.o \
+	${${TARGET_MACHINE}_OFILES} \
+	e_lite_sysent.o emul_vector.o e_trampoline.o \
+	e_linux_getcwd.o
+
+all: emulator.${VERSION}
+
+include $(SRCDIR)/conf/Makerules
+include $(SRCDIR)/conf/$(TARGET_MACHINE)/Makerules
+
+# EMULATOR_BASE := $(shell ./emulator_base)
+emulator.${VERSION}: $(OBJFILES) emulator_base ${LIBDEPS}
+	@echo emulator_base is \"`./emulator_base`\"
+	$(LD) -o $@.out `./emulator_base` $(LDFLAGS) $(TARGET_LDFLAGS) $(OBJFILES) $(LIBS) && \
+	${SIZE} $@.out && \
+	mv $@.out $@
+
+emulator_base: programs/emulator_base.c
+	@echo
+	rm -f $@
+	$(HOST_CC) -DTARGET_${TARGET_MACHINE} $(CFLAGS) $(HOST_CFLAGS) -o $@ $<
+
+install: $(INSTALL_SBINDIR)/emulator.${VERSION}
+
+$(INSTALL_SBINDIR)/emulator.${VERSION}: emulator.${VERSION}
+	${MKDIR} $(patsubst %/,%,$(dir $@))
+	${INSTALL} -m 755 $< $@
+	$(MKDIR) $(INSTALL_SBINDIR)/../mach_servers
+	ln -sf $@ $(INSTALL_SBINDIR)/../mach_servers/emulator
+
+
+CLEAN_FILES += ${OBJFILES} emulator_base signal_server.h signal.h \
+	bsd_1_user.c emul_mach_interface_user.c signal_server.c
+
+e_signal.o: emul_mach_interface.h
+
+bsd_1.h bsd_1_user.c: bsd_1.cli ../server/serv/bsd_1.defs ../server/serv/bsd_types.defs
+signal_server.c signal_server.h: signal.srv ../server/serv/signal.defs ../server/serv/bsd_types.defs
+# avoid gmake incredible smartness
+signal_server.o: signal_server.c
+emul_mach_interface_user.o: emul_mach_interface_user.c

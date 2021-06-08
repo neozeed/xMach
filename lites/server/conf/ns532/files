@@ -1,0 +1,44 @@
+# 
+# Mach Operating System
+# Copyright (c) 1994 Ian Dall
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# IAN DALL ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" CONDITION.
+# IAN DALL DISCLAIMS ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+# WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+#
+# HISTORY
+# $Log: files,v $
+# Revision 1.1.1.1  2000/05/06 20:54:04  xmach
+# Imported Source
+#
+# Revision 1.1.1.1  1995/03/02  21:49:41  mike
+# Initial Lites release from hut.fi
+#
+#
+#	File:	conf/ns532/files
+#	Author:	Ian Dall
+#	Date: July 1994
+#
+#	Based on the i386 code
+#	by Johannes Helander
+#	Date:	May 1994
+#
+
+netns/ns_cksum.c		optional ns
+
+ns532/serv_machdep.c		optional lites
+ns532/conf.c			optional lites
+ns532/ns532_exception.c		optional lites
+ns532/misc_asm.s		optional lites
+ns532/second_syscalls.s		optional second_server
+
+libkern/bcmp.c			standard
+libkern/queue.c			optional lites

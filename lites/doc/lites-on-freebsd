@@ -1,0 +1,402 @@
+
+		Building and running Mach 4 and Lites
+			on a PC running FreeBSD 2
+
+				 Remy Card
+			   Remy.Card@linux.org
+
+				2 March 1995
+
+
+	This note describes the build procedure for Mach 4 and Lites
+on a PC running FreeBSD 2.  It is based upon the Mach 4 and Lites
+documentation and upon my experience.
+
+	It is not complete yet: it lacks the description of the CMU
+USER collection.  I have built this collection on FreeBSD 2 but I have
+to update my notes before including them in this document.
+
+	To build and run Mach 4 and Lites on top of a FreeBSD 2.x
+installation, you need:
+	1. a PC running FreeBSD 2 :-)
+	2. the Mach4 source distribution, available from jaguar.cs.utah.edu
+	   in /flexmach,
+	3. the Lites source distribution, available from ftp.funet.fi in
+	   /pub/mach/lites or mach.cs.cmu.edu in /src/lites,
+	4. the gnu make binary, available from ftp.FreeBSD.org in
+	   /pub/FreeBSD/2.0-RELEASE/packages/make-3.72.1.tgz.
+
+1. Building Mach 4
+------------------
+
+1.1. Patching the assembler
+
+	The assembler included in FreeBSD 2 has to be patched in order to
+assemble some of the Mach 4 source files.  The patch (against the file
+/usr/src/gnu/usr.bin/as/subsegs.c) is:
+
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+*** subsegs.c.orig	Fri Jan 13 12:36:42 1995
+--- subsegs.c	Thu Jan  5 19:56:40 1995
+***************
+*** 140,145 ****
+--- 140,148 ----
+  	if (seg == SEG_DATA) {
+  		seg_fix_rootP = &data_fix_root;
+  		seg_fix_tailP = &data_fix_tail;
++ 	} else if (seg == SEG_BSS) {
++ 		seg_fix_rootP = &bss_fix_root;
++ 		seg_fix_tailP = &bss_fix_tail;
+  	} else {
+  		know (seg == SEG_TEXT);
+  		seg_fix_rootP = &text_fix_root;
+***************
+*** 171,177 ****
+  {
+  	long tmp;		/* JF for obstack alignment hacking */
+  #ifndef MANY_SEGMENTS
+! 	know(seg == SEG_DATA || seg == SEG_TEXT);
+  #endif
+  	if (seg != now_seg || subseg != now_subseg)
+  	    {				/* we just changed sub-segments */
+--- 174,180 ----
+  {
+  	long tmp;		/* JF for obstack alignment hacking */
+  #ifndef MANY_SEGMENTS
+! 	know(seg == SEG_DATA || seg == SEG_TEXT || seg == SEG_BSS);
+  #endif
+  	if (seg != now_seg || subseg != now_subseg)
+  	    {				/* we just changed sub-segments */
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+
+	Once you have applied this patch in /usr/src/gnu/usr.bin/as, you should
+rebuild the assembler (make) and install it (make install).
+
+	Note: if you run FreeBSD current (after 2 March 1995), this patch is
+not needed: Nate Williams has commited this change to the FreeBSD source
+tree.
+
+1.2. Extracting Mach 4
+
+	You have to retrieve the files mach-UK02p8.tar.gz and
+mach4-i386-UK02p8.tar.gz from jaguar.cs.utah.edu in /flexmach.  Then,
+create a directory for the source files (e.g. /usr/src/UK02p8)
+and extract the source files:
+$ mkdir /usr/src/UK02p8
+$ cd /usr/src/UK02p8
+$ tar xvfz /.../mach-UK02p8.tar.gz
+$ tar xvfz mach4-i386-UK02p8.tar.gz
+
+	You should obtain two subdirectories called `mach4' and `mach4-i386'.
+
+1.3. Patching Mach 4
+
+1.3.1. Building ZMAGIC binaries
+
+	Mach 4 has to be built as a ZMAGIC executable file.  The FreeBSD
+linker generates QMAGIC binaries by default but the FreeBSD boot blocks
+are unable to load QMAGIC kernels.  The following patch forces the creation
+of a ZMAGIC binary:
+
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+*** UK02p8.orig/mach4-i386/boot/bsd/mkbootimage.sh	Sun Nov 20 17:57:16 1994
+--- UK02p8/mach4-i386/boot/bsd/mkbootimage.sh	Fri Jan 13 11:54:45 1995
+***************
+*** 23,29 ****
+  	esac
+  done
+  
+! $ld -nostdlib -o $outfile -Ttext 100000 \
+  	$machbootdir/bootimage_head.o $files $machbootdir/bootimage_tail.o \
+  	|| exit 1
+  
+--- 23,29 ----
+  	esac
+  done
+  
+! $ld -Z -nostdlib -o $outfile -Ttext 100000 \
+  	$machbootdir/bootimage_head.o $files $machbootdir/bootimage_tail.o \
+  	|| exit 1
+  
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+
+1.3.2. Making the bootstrap understand 4.4BSD filesystems
+
+	Mach 4 has been modified to understand 4.4BSD filesystems.
+Unfortunately, the change contains an error :-(  You have to apply
+the following patch:
+
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+*** UK02p8/mach4/bootstrap/fs.h.orig	Thu Mar  2 18:10:54 1995
+--- UK02p8/mach4/bootstrap/fs.h	Thu Mar  2 18:11:50 1995
+***************
+*** 226,231 ****
+--- 226,232 ----
+  	quad	fs_maxfilesize;		/* maximum representable file size */
+  	quad	fs_qbmask;		/* ~fs_bmask - for use with quad size */
+  	quad	fs_qfmask;		/* ~fs_fmask - for use with quad size */
++ 	long	fs_state;		/* validate fs_clean field */
+  	int	fs_postblformat;	/* format of positional layout tables */
+  	int	fs_nrpos;		/* number of rotaional positions */
+  	int	fs_postbloff;		/* (short) rotation block list head */
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+
+1.4. Configuring and building Mach 4
+
+	To configure Mach 4, first create a directory to contain the object
+files (e.g. /usr/obj/UK02p8) and run the configure script, e.g:
+$ mkdir /usr/obj/UK02p8
+$ cd /usr/src/UK02p8
+$ /usr/src/UK02p8/mach4-i386/configure --with-mach4=/usr/src/UK02p8/mach4
+
+	The configure script accepts additional options as well:
+
+--enable-debug		Turns on various kernel debugging features, such as
+			extensive sanity checks and (on the i386) the kernel
+			debugger. 
+
+--enable-libmach	Enables generation of the CMU UX server-specific
+			library libmach.a.  Generally only needed in order
+			to compile programs in the CMU USER distribution.
+			Other Mach servers, such as those in Lites and the
+			Hurd, only use the (more) personality-neutral
+			standalone library libmach_sa.a. 
+
+--prefix=<prefix>	Specifies the installation area.  This defaults to
+			/usr/local.
+
+	Please note that the libmach library does not compile on FreeBSD 2
+because of a conflict between Mach and FreeBSD include files.  The following
+patch (a quick hack) fixes the problem:
+
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+*** /usr/include/machine/types.h.orig	Thu Mar  2 22:16:39 1995
+--- /usr/include/machine/types.h	Thu Mar  2 22:17:00 1995
+***************
+*** 47,54 ****
+--- 47,56 ----
+  } label_t;
+  #endif
+  
++ #ifndef	MACH
+  typedef	unsigned long	vm_offset_t;
+  typedef	unsigned long	vm_size_t;
++ #endif
+  
+  /*
+   * Basic integral types.  Omit the typedef if
+---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ---- CUT HERE ----
+
+	There is no `config' program for Mach 4.  The version which used to
+be contained in the CMU distribution of Mach 3 has been removed from the
+Mach 4 distribution.  To adapt Mach to your hardware, you have to do config's
+job by hand :-(  You can do this by editing the header files contained in
+the directories mach4/kernel/bogus and mach4-i386/kernel/bogus.
+
+	Once you have configured Mach 4, compiling it is very easy: just
+type:
+$ gmake -r
+
+	To install it, type:
+$ gmake -r install
+
+	This will install the Mach 4 include files (in <prefix>/include),
+libraries (in <prefix>/lib), binaries (in <prefix>/bin) and the micro
+kernel (in <prefix>/lib/mach-boot).
+
+2. Building Lites
+-----------------
+
+2.1. Extracting Lites
+
+	The Lites source distributions can be retrieved on ftp.funet.fi in
+/pub/mach/lites and mach.cs.cmu.edu in /src/lites.  Once you have retrieved
+it, create a directory for the source (e.g. /usr/src/lites-1.1) and extract
+the source distribution:
+$ cd /usr/src
+$ tar xvfz /.../lites-1.1.tar.gz
+
+2.2. Configuring and building Lites
+
+	To build Lites, first create a directory for the object files
+(e.g. /usr/obj/lites-1.1) and run the configure script:
+$ mkdir /usr/obj/lites-1.1
+$ cd /usr/obj/lites-1.1
+$ /usr/src/lites-1.1/configure
+
+	The configure script accepts several options:
+--build=BBB		Specifies the machine you are building on.
+
+--host=TTT		Specifies the target (this is confusing. It ought to
+			be --target).
+
+--prefix=III		Specifies the install area.
+
+--srcdir=SSS		Specifies where the source is.
+
+--with-release=RRR	Secifies a Mach release tree (sup one from CMU for
+			example). Libraries and includes not found in the
+			prefix directory are searched from here.
+
+--enable-debug		Adds +DEBUG to the configuration
+
+--enable-profiling	Adds -DGPROF and -pg and uses libmach_sa_p.a etc.
+
+--enable-mach4		Uses the Mach 4 distribution.
+
+--with-config=CCC	Sets the server configuration. See conf/MASTER.h and
+			other MASTER files. The default is STD+WS.
+
+
+	When building Lites on FreeBSD with Mach 4, only the `--enable-mach4'
+is really needed.  If you use the `--prefix' option, its value must match the
+value used when running the Mach 4 configure script.
+
+	To compile Lites, just type:
+$ gmake
+
+	To install Lites include files (in <prefix>/include) and the Lites
+emulator and server (in <prefix>/sbin), type:
+$ gmake install
+
+3. Booting Mach 4 and Lites
+---------------------------
+
+3.1. Preparing for booting
+
+	Copy the mach bootable image (<prefix>/lib/mach-boot/boot.all) to the
+root directory, e.g. /mach.
+
+	Create a /mach_servers directory and copy the Lites startup and
+emulator into it from <prefix>/sbin.  If you intend to build and run Mach
+programs which rely on Mach name service, you should also copy the mach_init
+binary into /mach_servers.  mach_init is part of the CMU USER collection.
+Since compiling this collection on FreeBSD is not very easy, an uuencoded
+binary of mach_init is enclosed at the end of this note.  If you don't
+intend to use Mach programs, you can simply create a symbolic link to
+/sbin/init, i.e:
+# ln -s /sbin/init /mach_servers/mach_init
+
+	Create a paging file on a partition which has some free space.  For
+example, if you have lots of space on /usr and /usr is located an /dev/hd0e,
+you can create a 32 MB swap file by typing:
+# dd if=/dev/zero of=/usr/paging_file bs=1024k count=32
+# ln -s /dev/hd0e/paging_file /mach_servers
+# chmod 0 /usr/paging_file
+
+	Note that Lites does not use the FreeBSD swap partition.  Thus it is
+possible to use it for swapping by typing:
+# ln -s /dev/hd0b /mach_servers/paging_file
+
+	Create devices for mapped time (semioptional):
+# cd /dev
+# mknod time c 25 0
+# mknod timezone c 26 0
+
+	Create devices for Mach version of XFree (optional but for that X
+server):
+# cd /dev
+# mknod iopl c 22 0
+# mknod kbd c 23 0
+# mknod mouse c 24 0
+
+	Change network interface name to what the Mach kernel thinks:
+# mv /etc/hostname.ed0 /etc/hostname.wd0
+  OR copy the file to both names. This way both Lites and FreeBSD will
+  boot ok. but you will see some error messages.
+
+	There isn't VT support in Lites yet so you need to run getty on the
+console.  The easiest way to do this is to copy the file /etc/ttys to two
+files /etc/ttys.bsd and /etc/ttys.lites and to switch the files at boot time:
+# cd /etc
+# cp ttys ttys.bsd
+# cp ttys ttys.lites
+# vi ttys.lites
+... edit the file to remove every getty on vt and to add a getty on console ...
+# vi /etc/rc
+... add the following lines after the line `mount -a -t nonfs':
+	if [ `uname -s` == FreeBSD ]; then
+		cp /etc/ttys.bsd /etc/ttys
+	else
+		cp /etc/ttys.lites /etc/ttys
+	fi
+
+
+3.2. Booting Mach and Lites
+
+	Once you have installed Mach and Lites, you can reboot your PC.  At
+the boot prompt, type the name of the Mach boot image, e.g:
+
+	>> FreeBSD BOOT @ 0x####: ####/#### k of memory
+	Use hd(1,a)/kernel to boot sd0 when wd0 is also installed.
+	Usage: [[[wd(0,a)]/kernel][-s][-r][-a][-c][-d][-b][-v]]
+	Use ? for file list or simply press Return for defaults
+	Boot: /mach
+
+	This should start Mach.  Mach will first probe for devices on your PC,
+the start the Lites server.  Lites will boot and you will get a login prompt.
+
+	Under Lites, most of the FreeBSD binaries will work.  Some will fail
+though: swapon, savecore, getty on VTs, procfs_mount.  Some other binaries
+have to be replaced by the Lites versions (compiled from the CMU USER
+collection): ps, top, w.
+
+4. Compiling Mach programs
+--------------------------
+
+4.1. Compiling Mach programs running on top of Lites
+
+	You can compile Mach programs to run them on top of Lites.  Suppose
+that you have a simple Mach program, called test.c.  If you have installed
+Mach in /usr/mach, you can compile it by using the following Makefile:
+
+#
+#	Makefile for a very simple Mach program
+#
+test:	test.o
+	ld -Bstatic -e __start -o test /usr/mach/lib/mach_crt0.o \
+		test.o -L/usr/mach/lib -lmach -lgcc -lc -lgcc
+
+test.o:	test.c
+	cc -c -I/usr/mach/include test.c
+
+	Note that Mach binaries have to be statically linked.  The FreeBSD
+shared library implementation depends on using the FreeBSD crt0.o.  Since
+Mach programs have to be linked with the Mach crt0.o, you have to use the
+ld's `-Bstatic' option because the Mach crt0.o does not support dynamic
+linking.
+
+4.2. Compiling standalone Mach programs
+
+	Should you wish to write a new Mach based operating system, you have
+to build Mach standalone program.  A mach standalone program is started
+directly by Mach at boot time and does not use any Unix services.  If you
+want to test a very simple Mach standalone program, get my test server from
+jaguar.cs.utah.edu in /flexmach/test-server.tar.gz.  The makefile will not
+work on FreeBSD (it was written on a Linux system) but it can be replaced
+by this one:
+
+#
+#	Makefile for a very simple Mach server
+#
+startup:	main.o
+	ld -Bstatic -e __start -o startup /usr/mach/lib/mach_crt0.o \
+		main.o -L/usr/mach/lib -lmach_sa -lgcc
+
+main.o:		main.c
+	cc -c -nostdinc -I/usr/mach/include main.c
+
+	Once you have compiled and linked the server, save the Lites startup
+file (mv /mach_servers/startup /mach_servers/startup.lites), copy the
+startup binary to /mach_servers and reboot Mach.  You will get a very
+exciting kind of operating system :-)
+
+5. Compiling programs from the CMU USER collection
+--------------------------------------------------
+
+	This section is not written yet.  I'll try to write it soon.
+
+Annex A: Uuencoded binary of mach_init
+--------------------------------------
+
+	[Deleted]

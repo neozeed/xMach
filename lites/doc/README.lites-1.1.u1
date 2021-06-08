@@ -1,0 +1,427 @@
+Lites 1.1.u1 release
+
+or (basically)
+
+Building Lites 1.1.u1 with mach4-i386
+
+
+
+Table of Contents:
+0. Introduction
+
+1. Prerequisites:
+   + Mach4 sources.
+     + patch for mach4-i386-UK02pl13.
+   + Lites sources.
+   + Suitable build environment.
+   + user22 binaries.
+
+2. Building lites:
+   + build and install Mach4.
+   + build and install Lites.
+
+3. Installing lites:
+   + make sure there is a bootable mach kernel around.
+   + make /mach_servers.
+   + cp server and emulator to it.
+   + make a paging_file and link it to /mach_servers.
+   + install mach_init, or link /sbin/init to it.
+   + run MAKEDEV.lites from /dev
+   + setup system for Mach ethernet device name
+   + change /etc/ttys so that there's a getty on /dev/console
+   + boot Mach/Lites!
+
+4. Appendix
+   + Explanation of mach4 configure options used.
+   + Explanation of Lites configure options used.
+   + Lites special devices.
+
+---------------------------------------------------------------------------
+0. Introduction:
+----------------
+
+  The Lites-1.1.u1 is bascially lites-1.1 with some changes to make it
+compile more cleanly with mach4 and the i386-mach cross-build tools from
+Utah, and to make the configure script work somewhat more sanely.  This is
+not meant as a major release, and as such hasn't been mainly tested on the
+x86.  However if you've got the PA snapshot, you should be able to compile
+this version of Lites and run it on your system.
+
+  This document is basically to get enough information together into one
+place so you can get started building and running Lites-1.1.u1 and mach4
+on the x86 platform.  There is more documentation in the doc directory in
+the source tree if you need more information.  The binary packages,
+including the cross-build tools, should have come with their own
+instructions.
+
+  Have fun! =)
+
+
+---------------------------------------------------------------------------
+1. Prerequisites:
+-----------------
+
++ Mach4 sources
+
+  Mach4 sources can be found at:
+
+	jaguar.cs.utah.edu:/flexmach/mach4-i386-*.tar.gz
+	jaguar.cs.utah.edu:/flexmach/mach4-*.tar.gz
+
+    If you get mach4-i386-UK02pl13, you'll also want to get this small
+  patch so that you can compile Lites:
+
+	jaguar.cs.utah.edu:/flexmach/patch-i386-UK02pl13-lites
+
++ Lites source
+
+    This document should have come either with the source or someplace 
+  very near it. =)  If not, you can find it at:
+
+       jaguar.cs.utah.edu:/flexmach/lites-1.1.u1.tar.gz
+
+   You can get the  Lites-1.1 sources at:
+
+       ftp.funet.fi:/pub/mach/lites/
+       mach.cs.cmu.edu:/src/lites/
+
++ Suitable build environment
+
+    This document is mainly to explain how to build the lites source with
+  the cross-build tools supplied by Utah, although it should be of use to
+  anyone trying to build the lites sources.
+
+  So, in that vein, you can get binaries for the cross-build tools at:
+
+	jaguar.cs.utah.edu:/flexmach/binaries/*/buildtools-*.tar.gz
+
+    There are also pre-compiled versions of some utilities that are needed
+  to build mach4/lites that aren't a part of the basic installation.  Just
+  grab the set of tools for your favorite free x86 OS and install! =)
+
++ User22 binaries
+
+    One more thing that would be very useful for a functioning Lites
+  system is the every elusive 'user22' collection of programs.  These
+  include ps, machid and mach_init.  These can be found at:
+
+	  jaguar.cs.utah.edu:/flexmach/binaries/user22-i386-bin.tar.gz
+
+
+---------------------------------------------------------------------------
+2. Building Lites:
+------------------
+
+Here's a general rundown of the process:
+
+  get everything (if you haven't already).
+  install the build tools if you need to.
+  unpack sources into the same directory.
+  apply the mach4-i386-UK02pl13 patch if needed.
+  configure mach4.
+  build and install mach4.
+  configure Lites.
+  build (and possibly install) Lites.
+
+
+  Once again, if you're building against mach4-i386-UK02pl13, you'll want
+to get and apply the small patch from jaguar so that Lites will be able to
+compile.
+
+     _________________________________________________________________
+
++ Build and install Mach4.
+
+    This isn't intended to be a tutorial on how to build mach4, just a
+    quick introduction to get you going.  It's assumed that you've
+    installed the i386-mach cross-build tools in some reasonable place
+    that's in your path.
+
+  First unpack the distribution into your favorite directory:
+
+	mkdir /usr/src/mach
+	cd /usr/src/mach
+	tar xfvz .../sources/mach4-UK02pl*.tar.gz
+	tar xfvz .../sources/mach4-i386-UK02pl*.tar.gz
+
+  If you're using i386-UK02pl13, you should then patch it:
+
+	patch < .../sources/patch-UK02pl13-lites 
+
+  Next, create an object directory to build in:
+
+	mkdir mach4-obj
+
+  Now you're ready to configure mach4:
+
+        cd mach4-obj
+	../mach4-i386/configure  --with-mach4=../mach4 --target=i386-mach 
+
+    The configure options used here are explained in the Appendix.  
+
+    NOTE: If there is any device configuration you need to do in the
+    kernel (say so that the 3com Etherlink II device driver is compiled
+    in), you will have to edit the kernel/bogus in the kernel source trees.
+
+  Finally, we can build and install the kernel:
+
+	gmake
+	gmake install	# do this last one as root
+
+   You'll want to then copy the kernel from <prefix>/lib/mach-boot/ to a
+   suitable place.  (A suitable place being /Mach for *BSD).
+   
+     _________________________________________________________________
+
++ Build and install Lites.
+
+  Unpack the Lites distribution in the same place you put mach4:
+
+        cd /usr/src/mach
+        tar xfvz .../sources/lites-1.1.u1.tar.gz
+
+  If you've got Lites-1.1 from funet or cmu, then untar that and
+  patch it:
+
+	cd /usr/src/mach
+	tar xfvz .../sources/Lites-1.1.tar.gz
+	gunzip -c .../sources/patch-lites-1.1-1.1.u1.gz | patch
+
+  Next, create an object directory to build in:
+
+        mkdir lites-obj
+
+  Now you're ready to configure and build Lites:
+
+        cd Lites-obj
+	../lites-1.1.u1/configure  --enable-mach4 --target=i386-mach \
+	  --prefix=/usr/mach4 
+        gmake
+        gmake install   # do this last one as root
+
+  Once again, the configure options are explained in the Appendix (wow!).
+
+
+---------------------------------------------------------------------------
+3. Installing Lites on the x86:
+-------------------------------
+
+  Now that you've built and installed both mach4 and Lites, you'll want to
+set up your system so it'll actually boot. =) Since you're actually going
+to be running Lites, I'll assume that you're not running Linux on an i386
+box, which means that you're running some variant of BSD.  If you haven't
+already, copy a mach4 kernel into / so that you can boot from it.
+
++ Populate /mach_servers w/server and emulator.
+
+    First you'll need to create a /mach_servers directory.  There are four
+  things that need to end up here: startup, emulator, paging_file and
+  mach_init.  Copy the Lites server and emulator to /mach_servers from
+  either <prefix>/sbin (if you ran 'gmake install'), or from the emulator
+  and server subdirectories of the Lites build directory (lites-obj
+  above).
+
+    At this point, the files you copied will probably have nice long names
+  like emulator.Lites.1.1 and startup.Lites.1.1.STD+WS+mach4.  This is
+  perfectly normal, but not what Mach4 is looking for.  So either you can
+  rename the files to be just 'startup' and 'emulator', or make a link.
+
+        ln emulator.Lites.1.1 emulator
+        ln startup.Lites.1.1.STD+WS+mach4 startup
+
++ /mach_servers/paging_file
+
+    Now we need to create a paging file for mach.  Basically the paging
+  file is just a large contiguous file that mach can page to.  Find a
+  parition that's got lots of free space and do this: (where the count is
+  how many megabytes you want the paging file to be)
+
+	dd if=/dev/zero of=/usr/paging_file bs=1024k count=<#mb>
+
+    The tricky bit comes next, since you don't actually have a paging_file
+  in your /mach_servers directory where you really need it.  Now you need
+  to make a link in /mach_servers to wherever your paging_file is.
+  However, the mach kernel dosen't know much about filesystems, so you
+  have to prepend the device name of where it is.  The device name is what
+  the mach _KERNEL_ thinks it is, not what is in the /dev directory.  This
+  only matters for ST506/IDE drives, since they are 'hd' under mach,
+  instead of the 'wd' that they are under *BSD.  For SCSI drives the names
+  are the same.
+
+    So, anyway...determine what device corresponds to the partition that
+  you made the paging_file on.  So if /usr is /dev/wd0e under *BSD, you
+  would do this:
+
+	ln -s /dev/hd0e/paging_file /mach_servers
+
++ /mach_servers/mach_init. 
+
+    If you want to run mach programs (say the ones from user22), you'll
+  have to get a mach_init binary and stick it in /mach_servers.  mach_init
+  comes with user22, so you can either install the user22-bin collection,
+  or compile it yourself.  You'll probably want to install the USER22
+  collection anyway, since it includes nice things like ps, machid, ms,
+  mkill, etc.  If you don't care about running mach programs on Lites,
+  then you can just create a symbolic link to the standard init program:
+
+	ln -s /sbin/init /mach_servers/mach_init
+
++ Lites special devices.
+
+    Now you need to create some devices for Lites.  You can either run the
+  MAKEDEV.lites that came with Lites-1.1.u1, or create them by hand.  To
+  use MAKEDEV, do this:
+
+	cd /dev
+        sh .../sources/lites-1.1.u1/MAKEDEV.lites time
+
+    There is also some X related devices, but you only need those if
+  you're going to be running X under Lites.  You can run 'MAKEDEV.lites
+  X11' to make them, or 'MAKEDEV.lites all' to create both sets.  Check
+  the Appendix (or just be adventurous and look at MAKEDEV.lites) for
+  creating the devices by hand.
+
++ Networking setup.
+
+    If you're going to be using a network device, then you'll have to set
+  up the system so that it tries to use the network interface name that
+  Mach knows about, not *BSD (Lites dosen't do any device name mapping).
+  So, for most releases of *BSD all you'll need to do is copy your
+  /etc/hostname.* file.  Supposing you're using a Western Digital card,
+  you would do this:
+
+      cp /etc/hostname.ed0 /etc/hostname.wd0
+
++ /etc/ttys
+
+    The only other thing you'll have to do is change the 'console' getty
+  to actually look at the console and not some Virtual Terminal.  This
+  involves editing /etc/ttys to turn on the getty for the console device
+  and turning off the one for the VT.  At this poing Lites dosen't know
+  about VT's and you'd be very dissapointed to reboot Lites and not ever
+  get a prompt.
+
+    On NetBSD-1.0 you should end up woth something like this:
+
+#
+#       from: @(#)ttys  5.1 (Berkeley) 4/17/89
+#       $Id: README.lites-1.1.u1,v 1.2 2000/10/27 01:55:27 welchd Exp $
+#
+# name  getty                           type    status          comments
+#
+console "/usr/libexec/getty Pc"         pc3     on secure
+#ttyv0  "/usr/libexec/getty Pc"         pc3     off secure
+
+    The FreeBSD-2.0 /etc/ttys file is very similar.
+
++ Booting Mach/Lites.
+
+    Now you're ready to boot Mach/Lites!
+
+    Basically all you have to do is reboot your machine.  At the boot
+  prompt, type in the name of your mach kernel.  The system should then
+  load Mach into memory and start it running.  It will then start Lites
+  and you should eventually get a login: prompt.  If you don't then
+  something got messed up along the way; check everything again and if you
+  really get stuck then try the mailing lists.
+
+
+---------------------------------------------------------------------------
+4. Appendix:
+------------
+
++ Explanation of mach4 configure options used.
+
+  --with-mach4=../mach4
+
+	You must tell the system dependent configure script where the
+	system independent sources are.  In this case, they're in ../mach4.
+
+  --target=i386-mach
+
+	This sets the system up for cross-compilation, using the i386-mach
+	tools, which are the ones distributed by Utah.  
+
+there are also some other useful configure options:
+
+  --prefix=/usr/mach4
+
+	This is the semi-official/recommended place for mach4 binaries and
+	is where the user binary distribution places it's executables.
+
+  --enable-debug
+
+	This turns on internal sanity checks and the kernel debugger.
+
+  --enable-libmach 
+
+        This turns on the building of libmach.a.  Currently this dosen't
+	work for cross-compilation with mach4.  
+
+     _________________________________________________________________
+
++ Explanation of lites configure options used.
+
+  --enable-mach4
+
+	This adds the +mach4 option to the Lites configuration, which
+	causes Lites to look for includes where Mach4 puts them.  It will
+	eventually turn on Mach4 specific features.
+
+  --target=i386-mach	
+	
+	This works the same as it does in Mach4, where it specifies the
+	target system to compile for.  This used to be the --host= option
+	in the Lites-1.1 configuration file.
+
+there are also some other configure options:
+
+  --enable-debug
+	
+	This adds +DEBUG to the Lites configuration, which turns on
+	various sanity checks in the server.
+
+  --prefix=/usr/mach4
+
+	Specifies where Lites will be installed, and also where it looks
+	for include files/libraries.  For best results this should be the
+	same as the one that was used to compile mach4.
+
+  --srcdir=path 
+
+	This specifies where the source is, only needed if you're not
+	running configure from the source directory.
+
+  --with-configuraton=configuration-string 
+            
+	This allows you to set the server configuration. The default is
+	STD+WS; see conf/MASTER.h and other MASTER files for more
+	information. 
+
+     _________________________________________________________________
+
++ Lites special devices.
+
+    There are two sets of special Lites devices: those for mapped time and
+X11.  If you're running lites, you'll probably want to create the time
+devices, but you only need the X11 ones if you're going to be running X on
+Lites. 
+
+    devices for mapped time:
+
+	mknod time c 25 0
+	mknod timezone c 26 0
+
+    devices for Mach version of XFree:
+
+	mknod iopl c 22 0
+	mknod kbd c 23 0
+	mknod mouse c 24 0
+
+
+Local Variables:
+mode: indented-text
+left-margin: 4
+fill-column: 74
+End:
+

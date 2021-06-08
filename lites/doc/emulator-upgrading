@@ -1,0 +1,82 @@
+From: Johannes Helander <jvh@cs.hut.fi>
+To: Ian Dall <dall@hfrd.dsto.gov.au>
+Cc: lites
+Subject: Re: Lites release schedule
+In-Reply-To: <9502200208.AA23468@hfrd.dsto.gov.au>
+References: <9502171716.AA27566@cs.utah.edu>
+	<199502200131.AA16432@glenlivet.cs.hut.fi>
+	<9502200208.AA23468@hfrd.dsto.gov.au>
+Organization: Helsinki University of Technology, CS Lab.
+
+Ian Dall writes:
+ >   Mike> I'm not sure what you mean by "independent", the emulator is
+ >   Mike> intimately tied to the server in /mach_servers, I think they
+ >   Mike> belong together.
+ > 
+ > I once made the mistake of trying to replace emulator on a running system.
+ > I immediately realized that there is a difference between the way you treat
+ > emulator and startup ;-(
+
+I do it all the time.  You just need to be aware that the disk image
+is mapped to all running programs and trashing it is a bad idea.  You
+also need to be aware that in order to run *any* binary you need to
+have a working emulator.  How to replace it then?
+
+1) copy the new emulator into your machine or compile it.  Do NOT
+   overwrite the old one.
+
+2) test the new emulator.  e.g. like this:   ./emulator.new /sbin/sh
+
+   if the shell appears to work then it is probably ok.  Test it more
+   if you wish.
+
+3) rm -f /mach_servers/emulator.old
+
+4) mv /mach_servers/emulator /mach_servers/emulator.old
+
+5) mv emulator.new /mach_servers/emulator
+
+
+You will get a diagnostics message on the console that
+/mach_servers/emulator was not found when executiong the second mv
+(5).  That doesn't matter, /mach_servers/emulator.old is used instead.
+
+Don't trash /mach_servers/emulator.old.  It is still being used by
+many programs.  It is ok to rm it.  The disk space will be freed when
+the image is unmapped, i.e. usually never because /sbin/init uses it.
+
+The final umount in halt should take care of the unreferred disk
+images.  Unfortunately Lites doesn't currently umount the root
+properly (should be fixed).  Thus fsck will scavenge the image after
+reboot.
+
+ > Hmm. I set my path based on the exit status of /usr/mach/bin/mach3 if
+ > it exists. This is not quite so transparent as the @ hack but is quite
+ > useable. Of course this doesn't solve the problem if you want to
+ > support multiple servers on the one machine.
+
+You could use /usr/mach/bin/mach3 in /etc/rc to decide how to mount.
+You could union_mount a directory with mach stuff on top of the normal
+directories.  Just an idea, not a very good one I admit.
+
+If you need to distinguish between Lites and whatever it should be
+easy to modify /usr/mach/bin/mach3 to check not only for mach3 but
+also Lites (e.g. do an bsd_after_exec RPC (101001) and see that it
+returns LITES_EALREADY.  That'll hardly happen anywhere else :-).
+
+ > Yep. I think multiple ports (up to a point) help shake down both the
+ > design and the implimentation. The need to support multiple ports
+ > is an incentive to keep things well modularized and other ports can
+ > help expose latent bugs.
+
+This has very much been the case.  Doing several ports at a rather
+early stage minimized machine dependencies quite efficiently.  Several
+bugs have been found this way.  Of course I haven't made life easy to
+you and Mike by changing the interfaces all the time.
+
+One port is easy to do by just copying code.  But when there are five
+it becomes important to identify common code and join the branches
+back together.
+
+	Johannes
+

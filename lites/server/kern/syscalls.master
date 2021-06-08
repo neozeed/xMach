@@ -1,0 +1,354 @@
+; 
+; Mach Operating System
+; Copyright (c) 1992 Carnegie Mellon University
+; Copyright (c) 1994 Johannes Helander
+; All Rights Reserved.
+; 
+; Permission to use, copy, modify and distribute this software and its
+; documentation is hereby granted, provided that both the copyright
+; notice and this permission notice appear in all copies of the
+; software, derivative works or modified versions, and any portions
+; thereof, and that both notices appear in supporting documentation.
+; 
+; CARNEGIE MELLON AND JOHANNES HELANDER ALLOW FREE USE OF THIS
+; SOFTWARE IN ITS "AS IS" CONDITION.  CARNEGIE MELLON AND JOHANNES
+; HELANDER DISCLAIM ANY LIABILITY OF ANY KIND FOR ANY DAMAGES
+; WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+;
+; 
+;	File: 	server/kern/syscalls.master
+;	Authors:
+;	Randall Dean, Carnegie Mellon University, 1992.
+;	Johannes Helander, Helsinki University of Technology, 1994.
+;
+; HISTORY
+;
+;
+;	@(#)syscalls.master	4.4lite - 8.2 (Berkeley) 1/13/94
+; System call name/number master file.
+; Processed to create init_sysent.c, syscalls.c and syscall.h.
+
+; Columns: number type nargs name altname returntype retname arglist
+;	number	system call number, must be in order
+;	type	one of STD, OBSOL, UNIMPL, COMPAT
+;	nargs	number of arguments
+;	name	name of syscall routine
+;	altname	name of system call if different
+;		for UNIMPL/OBSOL, name continues with comments
+;	returntype type of return value.
+;		"noreturn" means the call never returns
+;		"junk" means the return value is not interesting (0 or -1)
+;		"?" is unknown (use default).
+;		Note: The return type may not contain spaces.
+;	retname	name of return value
+;		"?" is unknown
+;		"X" usually means not interesting. If returntype is junk
+;			it will not be seen anywhere
+;	argtype	type of first argument
+;	argname	name of first argument
+;	rest	a comma separated list of arguments (the list includes the
+;		first argument so there must be a comma too).
+;		There must always be a name for an argument as C functions
+;		are automatically generated.
+
+; types:
+;	STD	always included
+;	COMPAT	included on COMPAT #ifdef
+;	LIBCOMPAT included on COMPAT #ifdef, and placed in syscall.h
+;	OBSOL	obsolete, not included in system, only specifies name
+;	UNIMPL	not implemented, placeholder only
+;	EMUL    always included but does exist only in emulator
+
+; #ifdef's, etc. may be included, and are copied to the output files.
+
+; Reserved/unimplemented system calls in the range 0-150 inclusive
+; are reserved for use in future Berkeley releases.
+; Additional system calls implemented in vendor and other
+; redistributions should be placed in the reserved range at the end
+; of the current calls.
+
+#if KERNEL
+; Get options files
+#include <nfs.h>
+#include <sysvshm.h>
+#include <map_uarea.h>
+#include <ktrace.h>
+#include <trace.h>
+#endif
+
+0	UNIMPL	SYSG 0 indir or out-of-range
+1	STD	SYSG 1 rexit exit noreturn X int status
+2	STD	SYSR 0 fork fork pid_t pid
+3	EMUL	SYSE 3 read read size_t nread int fd, void *buf, size_t nbytes
+4	EMUL	SYSS 3 write write size_t nwritten int fd, const void *buf, size_t nbytes
+5	STD	SYSS 3 open open int fd const char *path, int flags, int mode
+6	STD	SYSG 1 close close junk X int fd
+7	STD	SYSG 4 wait4 wait4 pid_t wpid pid_t pid, int *status, int options, struct rusage *rusage
+8	EMUL	SYSS 2 creat creat int fd char *name, mode_t mode
+9	STD	SYSS 2 link link junk X const char *target, const char *linkname
+10	STD	SYSS 1 unlink unlink junk X const char *path
+11	OBSOL	SYSR 2 execv execv
+12	STD	SYSS 1 chdir chdir junk X const char *path
+13	STD	SYSG 1 fchdir fchdir junk X const char *path
+14	STD	SYSS 3 mknod mknod junk X const char *path, mode_t mode, dev_t dev
+15	EMUL	SYSS 2 chmod chmod junk X const char *path, mode_t mode
+16	EMUL	SYSS 3 chown chown junk X const char *path, uid_t owner, gid_t group
+17	EMUL	SYSE 1 obreak brk junk ? const char *addr
+18	STD	SYSG 3 getfsstat getfsstat int nstructs struct statfs *buf, long bufsize, int flags
+19	STD	SYSG 3 lseek lseek off_t pos int fd, off_t offset, int sbase
+20	STD	SYSG 0 getpid getpid pid_t pid
+21	STD	SYSS 4 mount mount junk X int type, const char *dir, int flags, void * data
+22	STD	SYSS 2 unmount unmount junk X const char *path, int flags
+23	STD	SYSG 1 setuid setuid junk X uid_t uid
+24	STD	SYSG 0 getuid getuid uid_t uid
+25	STD	SYSG 0 geteuid geteuid uid_t euid
+26	EMUL	SYSG 4 ptrace ptrace junk X int request, pid_t pid, int *addr, int data
+27	STD	SYSG 3 recvmsg recvmsg int nreceived int fd, struct msghdr *msg, int flags
+28	STD	SYSG 3 sendmsg sendmsg int nsent int s, const struct msghdr *msg, int flags
+29	EMUL	SYSG 6 recvfrom recvfrom int nreceived int s, void *buf, int len, int flags, struct sockaddr *from, int *fromlen
+30	STD	SYSG 3 accept accept int fd int s, struct sockaddr *addr, int *addrlen
+31	STD	SYSG 3 getpeername getpeername junk X int s, struct sockaddr *name, int *namelen
+32	STD	SYSG 3 getsockname getsockname junk X int s, struct sockaddr *name, int *namelen
+33	STD	SYSS 2 saccess access junk X const char *path, int amode
+34	EMUL	SYSS 2 chflags chflags junk X const char *path, int flags
+35	EMUL	SYSS 2 fchflags fchflags junk X int fd, int flags
+; sync really doesn't return anything at all
+36	STD	SYSS 0 sync sync junk X
+37	STD	SYSG 2 kill kill junk X pid_t pid, int sig
+38	STD	SYSS 2 stat stat junk X const char *path, struct stat *buf
+39	STD	SYSG 0 getppid getppid pid_t pid
+40	EMUL	SYSS 2 lstat lstat junk X const char *path, struct stat *buf
+41	STD	SYSG 1 dup dup int nfd int fd
+42	STD	SYSG 1 pipe pipe junk X int fds[2]
+43	STD	SYSG 0 getegid getegid gid_t gid
+44	OBSOL	SYSG 4 profil profil junk X void *bufbase, size_t bufsize, unsigned pcoffset, unsigned pcscale
+;#if KTRACE
+;45	STD	SYSG 4 ktrace ktrace junk ? char *fname, int ops, int facs, int pid
+;#else
+45	UNIMPL	SYSG 0 ktrace ktrace
+;#endif
+;#if NMAP_UAREA
+;46	STD	SYSE 3 sigaction sigaction junk X int sig, const struct sigaction *act, struct sigaction *oact
+;#else
+46	STD	SYSG 3 sigaction sigaction junk X int sig, const struct sigaction *act, struct sigaction *oact
+;#endif
+47	STD	SYSG 0 getgid getgid gid_t gid
+;#if MAP_UAREA
+48	STD	SYSE 3 sigprocmask sigprocmask junk X int how, const sigset_t *set, sigset_t *oset
+;#else
+;48	STD	SYSG 3 sigprocmask sigprocmask junk X int how, const sigset_t *set, sigset_t *oset
+;#endif
+;49	STD	SYSG 2 getlogin getlogin char* name char *namebuf, u_int namelen
+; POSIX 0
+49	STD	SYSG 0 getlogin getlogin char* name
+50	STD	SYSG 1 setlogin setlogin junk X const char *name
+51	STD	SYSS 1 sysacct acct junk X const char *file
+#if MAP_UAREA
+52	STD	SYSE 1 sigpending sigpending junk X sigset_t *set
+#else
+52	STD	SYSG 1 sigpending sigpending junk X sigset_t *set
+#endif
+#ifdef notyet
+;53	STD	SYSG 3 sigaltstack sigaltstack junk X const stack_t *ss, stack_t *oss
+#else
+53	UNIMPL	SYSG 3 sigaltstack sigaltstack
+#endif
+54	STD	SYSS 3 ioctl ioctl junk X int fd, unsigned int cmd, char *argp
+55	STD	SYSS 1 reboot reboot junk X int howto
+56	STD	SYSG 1 revoke revoke junk ? char *fname
+57	STD	SYSS 2 symlink symlink junk X const char *oname, const char *nname
+58	STD	SYSS 3 readlink readlink int nread const char *path, char *buf, int bufsize
+59	EMUL	SYSR 3 execve execve junk X const char *path, const char *argv[], const char *envp[]
+#if NMAP_UAREA
+60	STD	SYSE 1 umask umask mode_t omask mode_t mask
+#else
+60	STD	SYSG 1 umask umask mode_t omask mode_t mask
+#endif
+61	STD	SYSS 1 chroot chroot junk X const char *dirname
+62	EMUL	SYSS 2 fstat fstat junk X int fd, struct stat *buf
+63	OBSOL	SYSG 4 getkerninfo getkerninfo int ? int op, char *where, int *size, int arg
+64	EMUL	SYSG 0 getpagesize getpagesize int bytes
+65	STD	SYSG 2 msync msync junk X caddr_t addr, int len
+66	STD	SYSR 0 vfork vfork pid_t pid
+67	OBSOL	SYSG 0 vread vread
+68	OBSOL	SYSG 0 vwrite vwrite
+69	EMUL	SYSG 1 sbrk sbrk caddr_t obrk int incr
+;70	STD	SYSG 1 sstk sstk ? ? int incr
+70	OBSOL	SYSG 1 sstk sstk
+71	EMUL	SYSE 6 smmap mmap caddr_t addr_out caddr_t addr, size_t len, int prot, int flags, int fd, off_t offset
+;72	STD	SYSG 1 ovadvise vadvise ? ? int anom
+72	OBSOL	SYSG 0 ovadvise vadvise
+73	STD	SYSG 2 munmap munmap junk X caddr_t addr, int len
+74	STD	SYSG 3 mprotect mprotect junk X caddr_t addr, int len, int prot
+75	STD	SYSG 3 madvise madvise junk X caddr_t addr, int len, int behav
+76	OBSOL	SYSG 0 vhangup vhangup
+77	OBSOL	SYSG 0 vlimit vlimit
+78	STD	SYSG 3 mincore mincore junk X caddr_t addr, int len, char *vec
+79	STD	SYSG 2 getgroups getgroups int ngroups u_int gidsetsize, int *gidset
+80	STD	SYSS 2 setgroups setgroups junk X int gidsetsize, gid_t *gidset
+;81	STD	SYSG 1 getpgrp getpgrp pid_t pgrp pid_t pid
+; POSIX 0
+81	STD	SYSG 0 getpgrp getpgrp pid_t pgrp
+82	STD	SYSG 2 setpgid setpgid junk X pid_t pid, pid_t pgrp
+83	STD	SYSS 3 setitimer setitimer junk X int which, struct itimerval *value, struct itimerval *ovalue
+; wait1 is also obsolete
+84	EMUL	SYSR 0 wait wait
+85	STD	SYSG 1 swapon swapon junk X const char *special
+86	STD	SYSG 2 getitimer getitimer junk X int which, struct itimervalue *value
+87	EMUL	SYSG 2 gethostname gethostname junk X char *name, int namelen
+88	EMUL	SYSS 2 sethostname sethostname junk X const char *name, int namelen
+89	STD	SYSG 0 getdtablesize getdtablesize int size
+90	STD	SYSG 2 dup2 dup2 junk X int ofd, int nfd
+91	UNIMPL	SYSG 2 getdopt getdopt
+92	STD	SYSS 3 fcntl fcntl int whatever int fd, int cmd, int arg
+93	STD	SYSS 5 select select int nready int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout
+94	UNIMPL	SYSG 2 setdopt setdopt
+95	STD	SYSS 1 fsync fsync junk X int fd
+96	STD	SYSG 3 setpriority setpriority junk X int which, int who, int prio
+97	STD	SYSG 3 socket socket int fd int domain, int type, int protocol
+98	EMUL	SYSS 3 connect connect junk X int fd, const struct sockaddr *name, int namelen
+99	OBSOL	SYSS 3 accept accept int fd int s, struct sockaddr *addr, int *addrlen
+100	STD	SYSG 2 getpriority getpriority int prio int which, int who
+101	EMUL	SYSS 4 send send int nsent int s, char *msg, int len, int flags
+102	EMUL	SYSG 4 recv recv int nreceived int s, char *buf, int len, int flags
+103	STD	SYSR 1 sigreturn sigreturn junk X struct sigcontext *scp
+104	EMUL	SYSS 3 bind bind junk X int fd, const struct sockaddr *name, int namelen
+105	EMUL	SYSS 5 setsockopt setsockopt junk X int fd, int level, int optname, const void *optval, int optlen
+106	STD	SYSG 2 listen listen junk X int fd, int backlog
+107	OBSOL	SYSG 0 vtimes vtimes
+108	EMUL	SYSG 3 sigvec sigvec junk X int sig, struct sigvec *vec, struct sigvec *ovec
+#if MAP_UAREA
+109	COMPAT	SYSE 1 sigblock sigblock
+110	COMPAT	SYSE 1 sigsetmask sigsetmask
+#else
+109	COMPAT	SYSG 1 sigblock sigblock
+110	COMPAT	SYSG 1 sigsetmask sigsetmask
+#endif
+111	STD	SYSG 1 sigsuspend sigsuspend junk X const sigset_t *sigmask
+112	COMPAT	SYSS 2 sigstack sigstack junk X const struct sigstack *ss, struct sigstack *oss
+113	OBSOL	SYSG 3 recvmsg recvmsg int nreceived int fd, struct msghdr *msg, int flags
+114	OBSOL	SYSG 3 sendmsg sendmsg int nset int s, const struct msghdr *msg, int flags
+;#if TRACE
+;115	STD	SYSG 2 vtrace vtrace ? ? int a1, int a2
+;#else
+115	OBSOL	SYSG 2 vtrace vtrace
+;#endif
+116	STD	SYSG 2 gettimeofday gettimeofday junk X struct timeval *tp, struct timezone *tzp
+117	STD	SYSS 2 getrusage getrusage junk ? int who, struct rusage *rusage
+118	EMUL	SYSS 5 getsockopt getsockopt junk X int fd, int level, int optname, void *optval, int *optlen
+;#ifdef vax
+;119	STD	SYSG 1 resuba resuba ? ? int a1
+;#else
+119	UNIMPL	SYSG 0 nosys nosys
+;#endif
+120	EMUL	SYSS 3 readv readv int nread int fd, struct iovec *iov, int iovcnt
+121	EMUL	SYSS 3 writev writev int nwritten int fd, struct iovec *iov, int iovcnt
+122	EMUL	SYSS 2 settimeofday settimeofday junk X struct timeval *tp, struct timezone *tzp
+123	EMUL	SYSS 3 fchown fchown junk X int fd, uid_t owner, gid_t group
+124	EMUL	SYSS 2 fchmod fchmod junk X int fd, mode_t mode
+125	OBSOL	SYSS 6 recvfrom recvfrom int nreceived int s, void *buf, int len, int flags, struct sockaddr *from, int *fromlen
+126	LIBCOMPAT SYSG	2 setreuid setreuid
+127	LIBCOMPAT SYSG	2 setregid setregid
+128	STD	SYSS 2 rename rename junk X const char *old, const char *new
+129	EMUL	SYSS 2 truncate truncate junk X const char *path, off_t length
+130	EMUL	SYSS 2 ftruncate ftruncate junk X int fd, off_t length
+131	STD	SYSS 2 flock flock junk X int fd, int operation
+132	STD	SYSS 2 mkfifo mkfifo junk X const char *path, mode_t mode
+133	EMUL	SYSS 6 sendto sendto int nsent int s, const void *msg, int len, int flags, const struct sockaddr *to, int tolen
+134	STD	SYSG 2 shutdown shutdown junk X int fd, int how
+; XXX was 5
+135	STD	SYSG 4 socketpair socketpair junk X int domain, int type, int protocol, int *sv
+136	STD	SYSS 2 mkdir mkdir junk X const char *path, mode_t mode
+137	STD	SYSS 1 rmdir rmdir junk X const char *path
+138	EMUL	SYSS 2 utimes utimes junk X const char *file, const struct timeval *times
+139	OBSOL	SYSG 0 4.2 sigreturn sigreturn
+140	EMUL	SYSS 2 adjtime adjtime junk X struct timeval *delta, struct timeval *olddelta
+141	OBSOL	SYSS 3 getpeername getpeername junk X int s, struct sockaddr *name, int *namelen
+142	EMUL	SYSG 0 gethostid gethostid int id
+143	EMUL	SYSG 1 sethostid sethostid junk X int hostid
+#if MAP_UAREA
+144	STD	SYSE 2 getrlimit getrlimit junk X int resource, struct rlimit *rlp
+#else
+144	STD	SYSG 2 getrlimit getrlimit junk X int resource, struct rlimit *rlp
+#endif
+145	EMUL	SYSS 2 setrlimit setrlimit junk X int resource, const struct rlimit *rlp
+146	COMPAT	SYSG 2 killpg killpg
+147	STD	SYSG 0 setsid setsid pid_t pgrp
+148	STD	SYSS 4 quotactl quotactl junk X const char *path, int cmd, int id, char *addr
+149	EMUL	SYSS 4 quota quota int retval int a1, int a2, int a3, int a4
+150	OBSOL	SYSS 3 getsockname getsockname junk X int s, struct sockaddr *name, int *namelen
+
+; Syscalls 151-180 inclusive are reserved for vendor-specific
+; system calls.  (This includes various calls added for compatibity
+; with other Unix variants.)
+; Some of these calls are now supported by BSD...
+151	UNIMPL SYSG	0 nosys nosys
+152	UNIMPL SYSG	0 nosys nosys
+153	UNIMPL SYSG	0 nosys nosys
+154	UNIMPL SYSG	0 nosys nosys
+#if NFS
+155	STD SYSG	5 nfssvc nfssvc junk X int sock, struct sockaddr *mask, int mask_length, struct sockaddr *match, int match_length
+#else
+155	UNIMPL SYSG	0 nosys nosys
+#endif
+156	STD SYSS	4 getdirentries getdirentries int nread int fd, char *buf, int nbytes, long *basep
+157	STD SYSS	2 statfs statfs junk X const char *path, struct statfs *buf
+158	STD SYSS	2 fstatfs fstatfs junk X int fd, struct statfs *buf
+159	UNIMPL SYSG	0 nosys nosys
+; 160 was async_daemon
+160	UNIMPL SYSG	0 nosys nosys
+#if NFS
+161	STD SYSS	2 getfh getfh junk X const char *path, struct fhandle *fhp
+#else
+161	UNIMPL SYSG	0 nosys nosys
+#endif
+; For NetBSD compat. YP: yach.
+162	EMUL SYSG	2 getdomainname getdomainname junk X char *name, int namelen
+163	EMUL SYSG	2 setdomainname setdomainname junk X const char *name, int namelen
+; Note: The emulator treats 164 as getdirentries for i386 UX binaries.
+164	EMUL SYSG	1 uname uname junk X struct utsname *name
+165	UNIMPL SYSG	0 nosys nosys
+166	UNIMPL SYSG	0 nosys nosys
+167	UNIMPL SYSG	0 nosys nosys
+168	UNIMPL SYSG	0 nosys nosys
+169	UNIMPL SYSG	0 nosys nosys
+170	UNIMPL SYSG	0 nosys nosys
+#if SYSVSHM
+171	STD SYSG	4 shmsys shmsys ? ? int a1, int a2, int a3, int a4
+#else
+171	UNIMPL SYSG	0 nosys nosys
+#endif
+172	UNIMPL SYSG	0 nosys nosys
+173	UNIMPL SYSG	0 nosys nosys
+174	UNIMPL SYSG	0 nosys nosys
+175	UNIMPL SYSG	0 nosys nosys
+176	UNIMPL SYSG	0 nosys nosys
+177	UNIMPL SYSG	0 nosys nosys
+178	UNIMPL SYSG	0 nosys nosys
+179	UNIMPL SYSG	0 nosys nosys
+180	UNIMPL SYSG	0 nosys nosys
+
+; Syscalls 180-199 are used by/reserved for BSD
+181	STD SYSG	1 setgid setgid junk X gid_t gid
+182	STD SYSG	1 setegid setegid junk X gid_t egid
+183	STD SYSG	1 seteuid seteuid junk X uid_t euid
+184	UNIMPL SYSG	0 nosys nosys
+185	UNIMPL SYSG	0 nosys nosys
+186	UNIMPL SYSG	0 nosys nosys
+187	UNIMPL SYSG	0 nosys nosys
+188	UNIMPL SYSG	0 nosys nosys
+189	UNIMPL SYSG	0 nosys nosys
+190	UNIMPL SYSG	0 nosys nosys
+191	UNIMPL SYSG	0 nosys nosys
+192	UNIMPL SYSG	0 nosys nosys
+193	UNIMPL SYSG	0 nosys nosys
+194	UNIMPL SYSG	0 nosys nosys
+195	UNIMPL SYSG	0 nosys nosys
+196	UNIMPL SYSG	0 nosys nosys
+197	UNIMPL SYSG	0 nosys nosys
+198	UNIMPL SYSG	0 nosys nosys
+199	UNIMPL SYSG	0 nosys nosys
+
+200	STD SYSS	5 table table int cel int id, int index, char *addr, int nel, u_int lel
+201	STD SYSG	1 sysctrace sysctrace junk X pid_t pid
+202	EMUL SYSE	6 __sysctl __sysctl int retlen int *name, unsigned int namelen, void *old, size_t *oldlenp, void *new, size_t newlen

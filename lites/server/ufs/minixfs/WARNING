@@ -1,0 +1,12 @@
+This code is in a very alpha state.
+It works me, when I boot from it (as a root fs).
+And it works too, when I boot from a FreeBSD root filesystem, and
+  mount a MINIX partition.
+
+KNOWN BUGS:
+ - mount only as readonly (mount_minixfs sets alway the R/O flag, independent
+                        from the user's setting)
+ - when executing an 'ls -l', the 'total XXXXX' field at the beginning
+   of the output is calculated wrong (maybe some sign-extension error 
+   occurs when converting a value from 32 to 64 bit? but I haven't yet
+   looked at ls's source, so I don't know what's happening)

@@ -1,0 +1,7 @@
+CHANGES in Lites 1.1.950808
+
+* Utah fixes from patch-lites-1.1-1.1.u1
+* sysctl as an RPC, no more copyin/outs in sysctl functions
+* ppp support (ppp 2.1.2)
+* Other minor fixes and cleanups
+* Short build instructions on NetBSD w/ patches to RT-Mach

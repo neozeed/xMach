@@ -1,0 +1,347 @@
+
+Building Lites on NetBSD
+
+I'm using NetBSD (1.0 and -current) to build Lites.  I am also using NetBSD
+to build RT-Mach, on top of which I run Lites.  This snapshot (1.1.950808) 
+should build on NetBSD with NetBSD's default compilers etc. without any changes.
+If you are running NetBSD-current, you may have to link with libgcc from 1.0,
+at least I had some problems with libgcc from -current (beginning of July).
+
+Basically the only thing you need to do is to make your bootstrap grok
+binaries with NetBSD's a.out header.  The diff below is against RT-Mach MK83i 
+sources, and also contains some modifications to make RT-Mach itself build 
+on NetBSD.
+
+Enjoy!
+
+Jukka Partanen, jtp@cs.hut.fi
+
+
+--------------------------------------------------------------------------------
+diff -ur /p/mach/mach3/latest/src/mk/bootstrap/file_io.c ./bootstrap/file_io.c
+--- /p/mach/mach3/latest/src/mk/bootstrap/file_io.c	Thu Nov 17 21:42:47 1994
++++ ./bootstrap/file_io.c	Thu Dec  8 15:24:55 1994
+@@ -447,6 +447,19 @@
+ 	return (0);
+ }
+ 
++/* In 4.4 d_reclen is split into d_type and d_namlen */
++struct dirent_44 {
++	unsigned long	d_fileno;
++	unsigned short	d_reclen;
++	unsigned char	d_type;
++	unsigned char	d_namlen;
++	char	d_name[255 + 1];
++};
++
++/* Max length of an in-inode symlink; nonzero implies 4.4 dirent structure.  */
++static long maxsymlinklen;
++
++
+ /*
+  * Search a directory for a name and return its
+  * i_number.
+@@ -460,7 +473,7 @@
+ 	vm_offset_t	buf;
+ 	vm_size_t	buf_size;
+ 	vm_offset_t	offset;
+-	register struct direct *dp;
++	register struct dirent_44 *dp;
+ 	int		length;
+ 	kern_return_t	rc;
+ 
+@@ -472,7 +485,12 @@
+ 	    if (rc != KERN_SUCCESS)
+ 		return (rc);
+ 
+-	    dp = (struct direct *)buf;
++	    dp = (struct dirent_44 *)buf;
++	    if (maxsymlinklen == 0) {
++		/* 4.3 filesystem.  */
++		struct direct *odp = (struct direct *) buf;
++		dp->d_namlen = odp->d_namlen;
++	    }
+ 	    if (dp->d_ino != 0) {
+ 		if (dp->d_namlen == length &&
+ 		    !strcmp(name, dp->d_name))
+@@ -511,6 +529,8 @@
+ 	}
+ 	/* don't read cylinder groups - we aren't modifying anything */
+ 
++	maxsymlinklen = fs->fs_maxsymlinklen;
++
+ 	*fsp = fs;
+ 	return 0;
+ }
+@@ -698,6 +718,10 @@
+ 		}
+ 		else
+ #endif	IC_FASTLINK
++		  if (link_len <= maxsymlinklen)
++		    /* 4.4 fastlink.  */
++		    bcopy (fp->i_symlink, namebuf, (unsigned) link_len);
++		else
+ 		{
+ 		    /*
+ 		     * Read file for symbolic link
+diff -ur /p/mach/mach3/latest/src/mk/bootstrap/fs.h ./bootstrap/fs.h
+--- /p/mach/mach3/latest/src/mk/bootstrap/fs.h	Thu Nov 17 21:42:50 1994
++++ ./bootstrap/fs.h	Thu Dec  8 15:24:45 1994
+@@ -246,7 +246,12 @@
+ #endif
+ 	int	fs_cpc;			/* cyl per cycle in postbl */
+ 	short	fs_opostbl[16][8];	/* old rotation block list head */
+-	int	fs_sparecon[56];	/* reserved for future constants */
++	int	fs_sparecon[50];        /* reserved for future constants */
++	int	fs_contigsumsize;       /* size of cluster summary array */ 
++	int	fs_maxsymlinklen;       /* max length of an internal symlink */
++	int	fs_inodefmt;            /* format of on-disk inodes */
++	int	fs_pad;			/* XXX pad inserted (56 vs 50) */
++	quad    fs_maxfilesize;         /* maximum representable file size */
+ 	quad	fs_qbmask;		/* ~fs_bmask - for use with quad size */
+ 	quad	fs_qfmask;		/* ~fs_fmask - for use with quad size */
+ 	int	fs_postblformat;	/* format of positional layout tables */
+diff -ur /p/mach/mach3/latest/src/mk/bootstrap/i386/exec.c ./bootstrap/i386/exec.c
+--- /p/mach/mach3/latest/src/mk/bootstrap/i386/exec.c	Thu Nov 17 21:42:33 1994
++++ ./bootstrap/i386/exec.c	Wed Jun 21 09:13:55 1995
+@@ -94,6 +94,18 @@
+ 
+ #include <i386/exec.h>
+ 
++unsigned long ntohl(unsigned long l)
++{
++	unsigned long  tmp;
++	unsigned char *from = (unsigned char *)&l, *to = (unsigned char *)&tmp;
++
++	to[3] = from[0];
++	to[2] = from[1];
++	to[1] = from[2];
++	to[0] = from[3];
++	return tmp;
++}
++
+ /*
+  *	Machine-dependent portions of execve() for the i386.
+  */
+@@ -112,7 +124,14 @@
+ 	if (resid)
+ 		return (EX_NOT_EXECUTABLE);
+ 
+-	switch ((int)x.a_magic) {
++#ifdef __NetBSD__
++#define N_GETMAGIC(e) \
++    ((((e).a_magic)&0xffff0000) ? (ntohl(((e).a_magic))&0xffff) : ((e).a_magic))
++#else
++#define N_GETMAGIC(e) (e).a_magic
++#endif
++    
++	switch ((int)N_GETMAGIC(x)) {
+ 
+ 	    case 0407:
+ 		lp->text_start  = 0;
+@@ -141,8 +160,13 @@
+ 		if (x.a_text == 0) {
+ 			return(EX_NOT_EXECUTABLE);
+ 		}
+-		lp->text_start  = 0x10000;
+-		lp->text_size   = sizeof(struct exec) + x.a_text;
++		if (x.a_magic != N_GETMAGIC(x)) { /* NetBSD */
++			lp->text_start = 0x1000;
++			lp->text_size = x.a_text;
++		} else {
++			lp->text_start  = 0x10000;
++			lp->text_size   = sizeof(struct exec) + x.a_text;
++		}
+ 		lp->text_offset = 0;
+ 		lp->data_start  = lp->text_start + lp->text_size;
+ 		lp->data_size   = x.a_data;
+@@ -226,8 +250,19 @@
+ 	if (result || resid)
+ 	    return (FALSE);
+ 
+-	sym_off = sizeof(struct exec)
+-		  + x.a_text + x.a_data + x.a_trsize + x.a_drsize;
++	if (x.a_magic != N_GETMAGIC(x)) /* NetBSD */
++	    switch (N_GETMAGIC(x)) {
++	    case 0413:
++		sym_off = x.a_text + x.a_data + x.a_trsize + x.a_drsize;
++		break;
++	    default:
++		sym_off = sizeof(struct exec) +
++		    x.a_text + x.a_data + x.a_trsize + x.a_drsize;
++		break;
++	    }
++	else
++	    sym_off = sizeof(struct exec)
++		+ x.a_text + x.a_data + x.a_trsize + x.a_drsize;
+ 	sym_size = x.a_syms;
+ 	str_off  = sym_off + sym_size;
+ 	result = read_file(fp, str_off,
+diff -ur /p/mach/mach3/latest/src/mk/kernel/i386/start.s ./kernel/i386/start.s
+--- /p/mach/mach3/latest/src/mk/kernel/i386/start.s	Thu Nov 17 21:33:55 1994
++++ ./kernel/i386/start.s	Thu Mar 23 10:45:36 1995
+@@ -253,6 +253,10 @@
+  */
+ 
+ 	lea	PA(_edata),%esi		/* point to symbol size word */
++#ifdef __NetBSD__
++	addl	$NBPG-1,%esi
++	andl	$-NBPG,%esi		/* _edata rounded to next page */
++#endif
+ 	movl	BI_SYM_SIZE(%esi),%edx	/* get symbol size */
+ 
+ 	lea	PA(_end)+NBPG-1(%edx),%edi
+diff -ur /p/mach/mach3/latest/src/mk/kernel/scsi/rz_disk.c ./kernel/scsi/rz_disk.c
+--- /p/mach/mach3/latest/src/mk/kernel/scsi/rz_disk.c	Thu Nov 17 21:39:59 1994
++++ ./kernel/scsi/rz_disk.c	Tue Jun  6 19:55:44 1995
+@@ -441,7 +441,7 @@
+ 		register int	j;
+ 		boolean_t	found;
+ 
+-		for (j = LABELOFFSET, found = FALSE;
++		for (j = 0/*LABELOFFSET*/, found = FALSE;
+ 		     j < (dev_bsize-sizeof(struct disklabel));
+ 		     j += sizeof(int)) {
+ 			label = (struct disklabel *) &data[j];
+@@ -477,8 +477,8 @@
+ 		ior->io_data = data;
+ 		if (!rz_vendor_label(tgt, label, ior)) {
+ 
+-			printf("rz%d: %s\n", tgt->unit_no,
+-				"No valid disk label, using defaults");
++			printf("rz%d: No valid disk label, using defaults\n",
++			       (tgt->masterno << 3) + tgt->unit_no);
+ 			/* Validate partitions a and c for initialization */
+ 			tgt->dev_info.disk.l.d_partitions[0].p_offset = 0;
+ 			tgt->dev_info.disk.l.d_partitions[0].p_size   = disk_size;
+diff -ur /p/mach/mach3/latest/src/mk/kernel/src/config/config.h ./kernel/src/config/config.h
+--- /p/mach/mach3/latest/src/mk/kernel/src/config/config.h	Thu Nov 17 21:32:55 1994
++++ ./kernel/src/config/config.h	Fri Dec  9 12:08:56 1994
+@@ -241,7 +241,7 @@
+ 
+ int	do_trace;
+ 
+-#ifndef	__386BSD__
++#if !defined(__386BSD__) && !defined(__NetBSD__)
+ char	*index();
+ char	*rindex();
+ char	*malloc();
+diff -ur /p/mach/mach3/latest/src/mk/kernel/src/makeboot/i386/exec.c ./kernel/src/makeboot/i386/exec.c
+--- /p/mach/mach3/latest/src/mk/kernel/src/makeboot/i386/exec.c	Thu Nov 17 21:32:59 1994
++++ ./kernel/src/makeboot/i386/exec.c	Thu Mar 23 09:28:55 1995
+@@ -104,7 +104,14 @@
+ 	lseek(in_file, (off_t) 0, L_SET);
+ 	read(in_file, (char *)&x, sizeof(x));
+ 
+-	switch ((int)x.a_magic) {
++#ifdef __NetBSD__
++#define N_GETMAGIC(e) \
++    ((((e).a_magic)&0xffff0000) ? (ntohl(((e).a_magic))&0xffff) : ((e).a_magic))
++#else
++#define N_GETMAGIC(e) (e).a_magic
++#endif
++
++	switch ((int)N_GETMAGIC(x)) {
+ 	    case 0407:
+ 		lp->text_start  = 0;
+ 		lp->text_size   = 0;
+@@ -132,8 +139,13 @@
+ 		if (x.a_text == 0) {
+ 		    return (0);
+ 		}
+-		lp->text_start	= 0x10000;
+-		lp->text_size	= sizeof(struct exec) + x.a_text;
++		if (x.a_magic != N_GETMAGIC(x)) { /* NetBSD */
++		    lp->text_start = 0x1000;
++		    lp->text_size  = x.a_text; /* round? */
++		} else {
++		    lp->text_start = 0x10000;
++		    lp->text_size  = sizeof (struct exec) + x.a_text;
++		}
+ 		lp->text_offset	= 0;
+ 		lp->data_start	= lp->text_start + lp->text_size;
+ 		lp->data_size	= x.a_data;
+@@ -176,7 +188,7 @@
+ 		 * Sequent boot.
+ 		 */
+ 		is_Sequent = 1;
+-		if (x.a_magic == 0413) {
++		if (N_GETMAGIC(x) == 0413) {
+ 		    /*
+ 		     * Treat 413 boot file as 410.
+ 		     */
+diff -ur /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/error.c ./kernel/src/rt-mig/error.c
+--- /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/error.c	Thu Nov 17 21:33:16 1994
++++ ./kernel/src/rt-mig/error.c	Fri Dec  9 12:29:44 1994
+@@ -61,7 +61,7 @@
+ #include <global.h>
+ #include <error.h>
+ 
+-#ifndef	__386BSD__
++#if !defined(__386BSD__) && !defined(__NetBSD__)
+ extern int yylineno;
+ extern char *yyinname;
+ #endif
+@@ -90,7 +90,7 @@
+     va_start(pvar, format);
+     if (!BeQuiet && (errors == 0))
+     {
+-#ifndef	__386BSD__
++#if !defined(__386BSD__) && !defined(__NetBSD__)
+ 	fprintf(stderr, "\"%s\", line %d: warning: ", yyinname, yylineno-1);
+ #endif
+ 	(void) vfprintf(stderr, format, pvar);
+@@ -104,7 +104,7 @@
+ {
+     va_list pvar;
+     va_start(pvar, format);
+-#ifndef	__386BSD__
++#if !defined(__386BSD__) && !defined(__NetBSD__)
+     fprintf(stderr, "\"%s\", line %d: ", yyinname, yylineno-1);
+ #endif
+     (void) vfprintf(stderr, format, pvar);
+diff -ur /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/error.h ./kernel/src/rt-mig/error.h
+--- /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/error.h	Thu Nov 17 21:33:16 1994
++++ ./kernel/src/rt-mig/error.h	Thu Mar 23 09:17:59 1995
+@@ -93,7 +93,7 @@
+ 
+ extern const char *unix_error_string(int error_num);
+ extern int sys_nerr;
+-extern char *sys_errlist[];
++extern const char *const sys_errlist[];
+ 
+ extern int errors;
+ extern void set_program_name(const char *name);
+diff -ur /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/lexxer.l ./kernel/src/rt-mig/lexxer.l
+--- /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/lexxer.l	Thu Nov 17 21:33:22 1994
++++ ./kernel/src/rt-mig/lexxer.l	Thu Mar 23 09:41:03 1995
+@@ -151,7 +151,7 @@
+     RETURN(syIPCFlag);							\
+ }
+ 
+-#ifdef	__386BSD__
++#if defined(__386BSD__) || defined(__NetBSD__)
+ static int oldYYBegin;
+ #define yybgin yy_start
+ #else
+@@ -322,7 +322,7 @@
+ {
+     register const char *startName;
+ 
+-#ifndef	__386BSD__
++#if !defined(__386BSD__) && !defined(__NetBSD__)
+     yylineno = atoi(body);
+     startName = index(body, '"');
+     if (startName != NULL)
+diff -ur /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/string.c ./kernel/src/rt-mig/string.c
+--- /p/mach/mach3/latest/src/mk/kernel/src/rt-mig/string.c	Thu Nov 17 21:33:26 1994
++++ ./kernel/src/rt-mig/string.c	Fri Dec  9 12:31:11 1994
+@@ -71,7 +71,7 @@
+ #include <stdlib.h>
+ #include <error.h>
+ #include <string.h>
+-#ifdef	__386BSD__
++#if defined(__386BSD__) || defined(__NetBSD__)
+  /* for str<foo> */
+ #include </usr/include/string.h>
+ #endif
