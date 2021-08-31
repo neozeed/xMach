@@ -1,8 +1,3 @@
-# INTERNET LAWYERS and other concern trolls can read all the copyrite header blocks here:
-https://github.com/neozeed/xMach/files/7081606/mk4-Copyright.txt
-
-I don't know why you care so much, because you sure aren't here for software, maybe you get internet points or something?
-
 # xMach
  xMach kernel (Mach4+Lites) from soruceforge
 https://sourceforge.net/projects/xmach/
