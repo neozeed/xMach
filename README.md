@@ -22,7 +22,7 @@ building Lites is very similar:
 ```bash
 mkdir lites-build  
 cd lites-build  
-../lites/configure  --host=i586-linux --target=i586-linux --build=i586-linux --enable-mach4 --prefix=/usr/local/xmach --with-mach4=../kernel
+../lites/configure  --host=i586-linux --target=i586-linux --build=i586-linux --enable-mach4 --prefix=/usr/local/xmach --with-mach4=../kernel LITES_CONFIG=LARGE
 ```
 
 likewise you will need to use an updated config file from 'updated-conf'.  If you try to run make before this it will not only fail, but a make clean will not actually clean the source correctly you will have to destroy the directory to try agin.
