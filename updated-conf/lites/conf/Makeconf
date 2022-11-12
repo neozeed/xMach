@@ -42,7 +42,7 @@
 
 SHELL = /bin/sh
 
-LITES_CONFIG	= STD+WS+mach4
+LITES_CONFIG	= STD+WS+ext2fs+msdosfs+slice+mach4
 TARGET_MACHINE	= i386
 MACH_RELEASE_DIR = 
 PROFILING	= no
