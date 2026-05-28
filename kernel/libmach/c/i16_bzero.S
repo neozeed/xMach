@@ -32,13 +32,13 @@
 #include <mach/machine/asm.h>
 
 #undef B_ARG0
-#define B_ARG0	 8(%bp)
+#define B_ARG0	 8(%ebp)
 #undef B_ARG1
-#define B_ARG1	12(%bp)
+#define B_ARG1	12(%ebp)
 #undef B_ARG2
-#define B_ARG2	16(%bp)
+#define B_ARG2	16(%ebp)
 #undef B_ARG3
-#define B_ARG3	20(%bp)
+#define B_ARG3	20(%ebp)
 
 /*
  * memset(char *addr, int ch, unsigned int length)
