@@ -30,6 +30,21 @@
 #include "utils.h"
 #include "global.h"
 
+/*
+ * Do not reuse a va_list after passing it to SkipVFPrintf/vfprintf.
+ * On i386 this happened to work, but on x86_64 va_list is stateful
+ * and may be advanced by the callee.
+ */
+
+#define SKIP_VFPRINTF_COPY(file, fmt, ap)        \
+    do {                                         \
+        va_list ap_copy;                         \
+        va_copy(ap_copy, ap);                    \
+        SkipVFPrintf((file), (fmt), ap_copy);    \
+        va_end(ap_copy);                         \
+    } while (0)
+
+
 void
 WriteImport(FILE *file, const_string_t filename)
 {
@@ -374,26 +389,26 @@ WriteCopyType(FILE *file, const ipc_type_t *it, const char *left,
     if (it->itStruct)
     {
 	fprintf(file, "\t");
-	SkipVFPrintf(file, left, pvar);
+	SKIP_VFPRINTF_COPY(file, left, pvar);
 	fprintf(file, " = ");
-	SkipVFPrintf(file, right, pvar);
+	SKIP_VFPRINTF_COPY(file, right, pvar);
 	fprintf(file, ";\n");
     }
     else if (it->itString)
     {
 	fprintf(file, "\t(void) %smig_strncpy(", SubrPrefix);
-	SkipVFPrintf(file, left, pvar);
+	SKIP_VFPRINTF_COPY(file, left, pvar);
 	fprintf(file, ", ");
-	SkipVFPrintf(file, right, pvar);
+	SKIP_VFPRINTF_COPY(file, right, pvar);
 	fprintf(file, ", %d);\n", it->itTypeSize);
     }
     else
     {
 	fprintf(file, "\t{ typedef struct { char data[%d]; } *sp; * (sp) ",
 		it->itTypeSize);
-	SkipVFPrintf(file, left, pvar);
+	SKIP_VFPRINTF_COPY(file, left, pvar);
 	fprintf(file, " = * (sp) ");
-	SkipVFPrintf(file, right, pvar);
+	SKIP_VFPRINTF_COPY(file, right, pvar);
 	fprintf(file, "; }\n");
     }
     va_end(pvar);
@@ -405,12 +420,22 @@ WritePackMsgType(FILE *file, const ipc_type_t *it, dealloc_t dealloc,
 		 const char *right, ...)
 {
     va_list pvar;
+    va_list pvar2;
+
     va_start(pvar, right);
 
     fprintf(file, "\t");
-    SkipVFPrintf(file, left, pvar);
+
+    va_copy(pvar2, pvar);
+    SKIP_VFPRINTF_COPY(file, left, pvar2);
+    va_end(pvar2);
+
     fprintf(file, " = ");
-    SkipVFPrintf(file, right, pvar);
+
+    va_copy(pvar2, pvar);
+    SKIP_VFPRINTF_COPY(file, right, pvar2);
+    va_end(pvar2);
+
     fprintf(file, ";\n");
 
     va_end(pvar);
