@@ -33,7 +33,7 @@ export STRIP	= i586-linux-strip
 export AR	= i586-linux-ar
 export RANLIB	= i586-linux-ranlib
 
-HOST_CC		= gcc -m32
+HOST_CC		= gcc
 
 LEX		= flex
 LEXLIB		= -lfl
