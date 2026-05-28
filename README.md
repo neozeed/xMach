@@ -1,5 +1,5 @@
 # xMach
- xMach kernel (Mach4+Lites) from soruceforge
+ xMach kernel (Mach4+Lites) from sourceforge
 https://sourceforge.net/projects/xmach/
 
 This is just a mirror of this original project.
